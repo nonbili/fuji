@@ -1,0 +1,11 @@
+{
+  "name": "fuji",
+  "version": "0.1.0",
+  "private": true,
+  "repository": "https://github.com/nonbili/fuji",
+  "author": "Nonbili",
+  "license": "BSD-3-Clause",
+  "devDependencies": {
+    "tauri": "^0.5.2"
+  }
+}
