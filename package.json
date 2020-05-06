@@ -5,6 +5,11 @@
   "repository": "https://github.com/nonbili/fuji",
   "author": "Nonbili",
   "license": "BSD-3-Clause",
+  "scripts": {
+    "start": "parcel index.html",
+    "start:ps": "spago build -w",
+    "tauri": "tauri dev"
+  },
   "devDependencies": {
     "tauri": "^0.5.2"
   }

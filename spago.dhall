@@ -1,5 +1,5 @@
 { name = "my-project"
-, dependencies = [ "console", "effect", "psci-support", "halogen" ]
+, dependencies = [ "aff-promise", "effect", "halogen", "nonbili", "now" ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs" ]
 }
