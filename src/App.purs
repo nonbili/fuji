@@ -7,10 +7,12 @@ module App
 
 import Nonbili.Prelude
 
+import Api (Meta)
 import Api as Api
 import Data.Argonaut.Core as A
 import Data.Argonaut.Encode (encodeJson)
 import Effect.Aff (Aff)
+import Effect.Exception (throw)
 import Effect.Now as Now
 import FFI.Tauri as Tauri
 import Halogen as H
@@ -35,12 +37,20 @@ type DSL = H.HalogenM State Action () Message Aff
 
 type State =
   { url :: String
+  , metas :: Array Meta
   }
 
 initialState :: State
 initialState =
   { url: ""
+  , metas: []
   }
+
+renderMeta :: Meta -> HTML
+renderMeta meta =
+  HH.img
+  [ HP.src meta.image
+  ]
 
 render :: State -> HTML
 render state =
@@ -56,6 +66,7 @@ render state =
       [ HP.type_ HP.ButtonSubmit]
       [ HH.text "Add"]
     ]
+  , HH.div_ $ map renderMeta state.metas
   ]
 
 app :: H.Component HH.HTML Query Unit Message Aff
@@ -71,7 +82,10 @@ app = H.mkComponent
 handleAction :: Action -> DSL Unit
 handleAction = case _ of
   Init -> do
-    pure unit
+    H.liftAff Api.readMetas >>= case _ of
+      Left err -> H.liftEffect $ throw err
+      Right metas -> do
+        H.modify_ $ _ { metas = metas }
 
   OnSubmit event -> do
     H.liftEffect $ Event.preventDefault event
