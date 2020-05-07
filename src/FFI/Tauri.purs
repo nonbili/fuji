@@ -7,7 +7,6 @@ import Prelude
 
 import Control.Promise (Promise)
 import Control.Promise as Promise
-import Data.Argonaut.Core (Json)
 import Data.DateTime.Instant (Instant)
 import Effect (Effect)
 import Effect.Aff (Aff)

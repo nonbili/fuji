@@ -5,13 +5,12 @@ module App
   , app
   ) where
 
-import Nonbili.Prelude
+import Fuji.Prelude
 
 import Api (Meta)
 import Api as Api
 import Data.Argonaut.Core as A
 import Data.Argonaut.Encode (encodeJson)
-import Effect.Aff (Aff)
 import Effect.Exception (throw)
 import Effect.Now as Now
 import FFI.Tauri as Tauri
@@ -56,7 +55,8 @@ render :: State -> HTML
 render state =
   HH.div_
   [ HH.form
-    [ HE.onSubmit $ Just <<< OnSubmit
+    [ class_ "bg-blue-200 py-2 px-4"
+    , HE.onSubmit $ Just <<< OnSubmit
     ]
     [ HH.input
       [ HP.required true

@@ -1,0 +1,12 @@
+@tailwind components;
+@tailwind utilities;
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  border: 0 solid theme('colors.gray.200');
+}
+
+body {
+  @apply text-gray-800 m-0 font-sans;
+  line-height: 1.5;
+}
