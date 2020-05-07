@@ -1,14 +1,12 @@
 module App
-  ( Message(..)
-  , Query
-  , Action
-  , app
+  ( app
   ) where
 
 import Fuji.Prelude
 
 import Api (Meta)
 import Api as Api
+import App.Types (Action(..), HTML, Query, Message, State, DSL, initialState)
 import Data.Argonaut.Core as A
 import Data.Argonaut.Encode (encodeJson)
 import Effect.Exception (throw)
@@ -18,32 +16,7 @@ import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
-import Web.Event.Event (Event)
 import Web.Event.Event as Event
-
-type Message = Void
-
-type Query = Const Void
-
-data Action
-  = Init
-  | OnSubmit Event
-  | OnValueChange String
-
-type HTML = H.ComponentHTML Action () Aff
-
-type DSL = H.HalogenM State Action () Message Aff
-
-type State =
-  { url :: String
-  , metas :: Array Meta
-  }
-
-initialState :: State
-initialState =
-  { url: ""
-  , metas: []
-  }
 
 renderMeta :: Meta -> HTML
 renderMeta meta =
