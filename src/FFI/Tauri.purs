@@ -15,6 +15,6 @@ foreign import readFiles_ :: Effect (Promise (Array String))
 readFiles :: Aff (Array String)
 readFiles = Promise.toAffE readFiles_
 
-foreign import writeFile_ :: Instant -> String -> Effect Unit
-writeFile :: Instant -> String -> Effect Unit
+foreign import writeFile_ :: String -> String -> Effect Unit
+writeFile :: String -> String -> Effect Unit
 writeFile = writeFile_

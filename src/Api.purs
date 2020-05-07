@@ -11,10 +11,10 @@ import FFI.Tauri as Tauri
 type Result a = Either String a
 
 type Meta =
-  { description :: String
-  , image :: String
-  , logo :: String
-  , title :: String
+  { description :: Maybe String
+  , image :: Maybe String
+  , logo :: Maybe String
+  , title :: Maybe String
   , url :: String
   }
 

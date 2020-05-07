@@ -6,12 +6,10 @@ import Fuji.Prelude
 
 import Api (Meta)
 import Api as Api
-import App.Types (Action(..), HTML, Query, Message, State, DSL, initialState)
-import Data.Argonaut.Core as A
-import Data.Argonaut.Encode (encodeJson)
+import App.Eval as Eval
+import App.Types (Action(..), DSL, HTML, Message, Query, State, initialState, metaToLink)
+import Data.Array as Array
 import Effect.Exception (throw)
-import Effect.Now as Now
-import FFI.Tauri as Tauri
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
@@ -21,7 +19,7 @@ import Web.Event.Event as Event
 renderMeta :: Meta -> HTML
 renderMeta meta =
   HH.img
-  [ HP.src meta.image
+  [ HP.src $ fromMaybe "" meta.image
   ]
 
 render :: State -> HTML
@@ -63,9 +61,10 @@ handleAction = case _ of
   OnSubmit event -> do
     H.liftEffect $ Event.preventDefault event
     state <- H.get
-    H.liftAff (Api.getMeta state.url) >>= traverse_ \res -> do
-      now <- H.liftEffect Now.now
-      H.liftEffect $ Tauri.writeFile now $ A.stringify $ encodeJson res
+    H.liftAff (Api.getMeta state.url) >>= traverse_ \meta -> do
+      link <- H.liftEffect $ metaToLink meta
+      H.modify_ \s -> s { links = Array.snoc s.links link }
+      Eval.persist
 
   OnValueChange url -> do
     H.modify_ $ _ { url = url }

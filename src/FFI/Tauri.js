@@ -11,6 +11,6 @@ exports.readFiles_ = () =>
 
 exports.writeFile_ = ts => contents => () =>
   writeFile({
-    file: getPath(ts.toString()),
+    file: getPath(ts),
     contents
   });
