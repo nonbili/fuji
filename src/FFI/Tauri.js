@@ -9,8 +9,10 @@ exports.readFiles_ = () =>
     Promise.all(files.map(file => readTextFile(file.path)))
   );
 
-exports.writeFile_ = ts => contents => () =>
+exports.readFile_ = fn => () => readTextFile(getPath(fn));
+
+exports.writeFile_ = fn => contents => () =>
   writeFile({
-    file: getPath(ts),
+    file: getPath(fn),
     contents
   });

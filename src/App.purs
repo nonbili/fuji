@@ -4,22 +4,21 @@ module App
 
 import Fuji.Prelude
 
-import Api (Meta)
 import Api as Api
 import App.Eval as Eval
 import App.Types (Action(..), DSL, HTML, Message, Query, State, initialState, metaToLink)
 import Data.Array as Array
-import Effect.Exception (throw)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
+import Model.Link (Link)
 import Web.Event.Event as Event
 
-renderMeta :: Meta -> HTML
-renderMeta meta =
+renderLink :: Link -> HTML
+renderLink link =
   HH.img
-  [ HP.src $ fromMaybe "" meta.image
+  [ HP.src $ fromMaybe "" link.image
   ]
 
 render :: State -> HTML
@@ -37,7 +36,7 @@ render state =
       [ HP.type_ HP.ButtonSubmit]
       [ HH.text "Add"]
     ]
-  , HH.div_ $ map renderMeta state.metas
+  , HH.div_ $ map renderLink state.links
   ]
 
 app :: H.Component HH.HTML Query Unit Message Aff
@@ -53,10 +52,7 @@ app = H.mkComponent
 handleAction :: Action -> DSL Unit
 handleAction = case _ of
   Init -> do
-    H.liftAff Api.readMetas >>= case _ of
-      Left err -> H.liftEffect $ throw err
-      Right metas -> do
-        H.modify_ $ _ { metas = metas }
+    Eval.init
 
   OnSubmit event -> do
     H.liftEffect $ Event.preventDefault event

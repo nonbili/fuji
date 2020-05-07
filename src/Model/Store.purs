@@ -1,14 +1,21 @@
-module Model.Store where
+module Model.Store
+  ( Store
+  , load
+  , save
+  ) where
 
 import Fuji.Prelude
 
 import Data.Argonaut.Core as A
+import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
+import Data.Argonaut.Parser (jsonParser)
+import FFI.Tauri (FileName(..))
 import FFI.Tauri as Tauri
 import Model.Link (Link)
 
-fileName :: String
-fileName = "store.json"
+fileName :: FileName
+fileName = FileName "store.json"
 
 currentVersion :: Int
 currentVersion = 0
@@ -17,6 +24,11 @@ type Store =
   { version :: Int
   , links :: Array Link
   }
+
+load :: Aff (Either String Store)
+load = do
+  contents <- Tauri.readFile fileName
+  pure $ decodeJson =<< jsonParser contents
 
 save :: Array Link -> Aff Unit
 save links = do
