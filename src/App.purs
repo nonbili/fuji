@@ -18,7 +18,8 @@ import Web.Event.Event as Event
 renderLink :: Link -> HTML
 renderLink link =
   HH.img
-  [ HP.src $ fromMaybe "" link.image
+  [ class_ "w-15 h-20 object-fit"
+  , HP.src $ fromMaybe "" link.image
   ]
 
 render :: State -> HTML
