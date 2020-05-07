@@ -11,6 +11,7 @@
     "tauri": "tauri dev"
   },
   "devDependencies": {
+    "cssnano": "^4.1.10",
     "tailwindcss": "^1.4.5",
     "tauri": "^0.5.2"
   }

@@ -1,4 +1,5 @@
-const { readDir, readTextFile, writeFile } = require("tauri/api/fs");
+const { readDir, readTextFile } = require("tauri/api/fs");
+const { readFile, writeFile } = require("../../src/js/tauri");
 
 const folder = "fuji";
 
@@ -9,10 +10,7 @@ exports.readFiles_ = () =>
     Promise.all(files.map(file => readTextFile(file.path)))
   );
 
-exports.readFile_ = fn => () => readTextFile(getPath(fn));
+exports.readFile_ = file => () => readFile(getPath(file));
 
-exports.writeFile_ = fn => contents => () =>
-  writeFile({
-    file: getPath(fn),
-    contents
-  });
+exports.writeFile_ = file => contents => () =>
+  writeFile(getPath(file), contents);
