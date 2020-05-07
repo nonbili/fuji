@@ -3,6 +3,7 @@ dist
 node_modules
 yarn-error.log
 
+.psc-ide-port
 .spago
 generated-docs
 output

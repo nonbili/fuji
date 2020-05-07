@@ -3,6 +3,7 @@ module App.Types where
 import Fuji.Prelude
 
 import Api (Meta)
+import Component.LinkPane as LinkPane
 import Halogen as H
 import Model.Link (Link)
 import Model.Link as Link
@@ -17,9 +18,15 @@ data Action
   | OnSubmit Event
   | OnValueChange String
 
-type HTML = H.ComponentHTML Action () Aff
+type Slot =
+  ( linkPane :: H.Slot LinkPane.Query LinkPane.Message Unit
+  )
 
-type DSL = H.HalogenM State Action () Message Aff
+_linkPane = SProxy :: SProxy "linkPane"
+
+type HTML = H.ComponentHTML Action Slot Aff
+
+type DSL = H.HalogenM State Action Slot Message Aff
 
 type State =
   { url :: String

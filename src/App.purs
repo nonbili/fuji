@@ -6,7 +6,8 @@ import Fuji.Prelude
 
 import Api as Api
 import App.Eval as Eval
-import App.Types (Action(..), DSL, HTML, Message, Query, State, initialState, metaToLink)
+import App.Types (Action(..), DSL, HTML, Message, Query, State, _linkPane, initialState, metaToLink)
+import Component.LinkPane as LinkPane
 import Data.Array as Array
 import Halogen as H
 import Halogen.HTML as HH
@@ -18,13 +19,17 @@ import Web.Event.Event as Event
 renderLink :: Link -> HTML
 renderLink link =
   HH.img
-  [ class_ "w-15 h-20 object-fit"
+  [ class_ "object-contain hover:bg-gray-200 cursor-pointer"
+  , style "width: 12rem; height: 16rem;"
   , HP.src $ fromMaybe "" link.image
   ]
 
 render :: State -> HTML
 render state =
-  HH.div_
+  HH.div
+  [ class_ "grid h-screen"
+  , style "grid-template-rows: auto 1fr"
+  ]
   [ HH.form
     [ class_ "bg-blue-200 py-2 px-4"
     , HE.onSubmit $ Just <<< OnSubmit
@@ -37,7 +42,20 @@ render state =
       [ HP.type_ HP.ButtonSubmit]
       [ HH.text "Add"]
     ]
-  , HH.div_ $ map renderLink state.links
+  , HH.div
+    [ class_ "grid"
+    , style "grid-template-columns: 1fr auto;"
+    ]
+    [ HH.div
+      [ class_ "p-4 grid grid-flow-col gap-4"
+      , style "grid-auto-columns: min-content"
+      ] $ map renderLink state.links
+    , HH.div
+      [ class_ "border-l"
+      , style "width: 20rem"
+      ]
+      [ HH.slot _linkPane unit LinkPane.component unit $ const Nothing ]
+    ]
   ]
 
 app :: H.Component HH.HTML Query Unit Message Aff
