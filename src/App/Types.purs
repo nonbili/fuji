@@ -17,6 +17,7 @@ data Action
   = Init
   | OnSubmit Event
   | OnValueChange String
+  | OnSelectLink Link
 
 type Slot =
   ( linkPane :: H.Slot LinkPane.Query LinkPane.Message Unit
@@ -31,12 +32,14 @@ type DSL = H.HalogenM State Action Slot Message Aff
 type State =
   { url :: String
   , links :: Array Link
+  , selectedLinks :: Array Link
   }
 
 initialState :: State
 initialState =
   { url: ""
   , links: []
+  , selectedLinks: []
   }
 
 metaToLink :: Meta -> Effect Link
@@ -45,7 +48,7 @@ metaToLink { url, title, image } = do
   pure
     { id
     , url
-    , title
+    , title: fromMaybe "" title
     , image
     , tags: []
     }

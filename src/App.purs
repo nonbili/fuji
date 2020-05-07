@@ -22,6 +22,7 @@ renderLink link =
   [ class_ "object-contain hover:bg-gray-200 cursor-pointer"
   , style "width: 12rem; height: 16rem;"
   , HP.src $ fromMaybe "" link.image
+  , HE.onClick $ Just <<< const (OnSelectLink link)
   ]
 
 render :: State -> HTML
@@ -54,7 +55,9 @@ render state =
       [ class_ "border-l"
       , style "width: 20rem"
       ]
-      [ HH.slot _linkPane unit LinkPane.component unit $ const Nothing ]
+      [ HH.slot _linkPane unit LinkPane.component state.selectedLinks $
+          const Nothing
+      ]
     ]
   ]
 
@@ -83,3 +86,6 @@ handleAction = case _ of
 
   OnValueChange url -> do
     H.modify_ $ _ { url = url }
+
+  OnSelectLink link -> do
+    H.modify_ $ _ { selectedLinks = [link] }

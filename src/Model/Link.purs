@@ -26,7 +26,7 @@ mkLinkId = do
 type Link =
   { id :: LinkId
   , url :: String
-  , title :: Maybe String
+  , title :: String
   , image :: Maybe String
   , tags :: Array String
   }
