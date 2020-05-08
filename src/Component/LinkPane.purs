@@ -7,6 +7,7 @@ module Component.LinkPane
 
 import Fuji.Prelude
 
+import Component.Note as Note
 import Data.Array as Array
 import Effect.Exception (throw)
 import Halogen as H
@@ -31,9 +32,15 @@ data Action
   | OnTextNoteChange String
   | OnAddTextNote
 
-type HTML = H.ComponentHTML Action () Aff
+type Slot =
+  ( note :: H.Slot Note.Query Note.Message LinkDetail.NoteId
+  )
 
-type DSL = H.HalogenM State Action () Message Aff
+_note = SProxy :: SProxy "note"
+
+type HTML = H.ComponentHTML Action Slot Aff
+
+type DSL = H.HalogenM State Action Slot Message Aff
 
 type State =
   { props :: Props
@@ -69,15 +76,8 @@ renderLink state link =
   ]
 
 renderNote :: LinkDetail.Note -> HTML
-renderNote note = case note.content of
-  LinkDetail.NoteText text ->
-    HH.div_
-    [ HH.text text
-    , HH.span
-      [ class_ "ml-3"]
-      [ HH.text $ LinkDetail.formatNoteId note.id
-      ]
-    ]
+renderNote note =
+  HH.slot _note note.id Note.component note $ const Nothing
 
 renderDetail :: LinkDetail -> HTML
 renderDetail detail =

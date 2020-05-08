@@ -21,6 +21,7 @@ import Data.TemplateLiteral.Unsafe (template)
 newtype Timestamp = Timestamp Instant
 
 derive newtype instance eqTimestamp :: Eq Timestamp
+derive newtype instance ordTimestamp :: Ord Timestamp
 
 instance showTimestamp :: Show Timestamp where
   show (Timestamp instant) =

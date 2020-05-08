@@ -36,6 +36,8 @@ type LinkDetail =
 
 newtype NoteId = NoteId Timestamp
 
+derive newtype instance eqNoteId :: Eq NoteId
+derive newtype instance ordNoteId :: Ord NoteId
 derive newtype instance encodeJsonNoteId :: EncodeJson NoteId
 derive newtype instance decodeJsonNoteId :: DecodeJson NoteId
 
