@@ -14,6 +14,7 @@ import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Model.Link (Link)
+import Model.Link as Link
 import Model.LinkDetail (LinkDetail)
 import Model.LinkDetail as LinkDetail
 import Nonbili.Halogen as NbH
@@ -61,13 +62,22 @@ renderLink state link =
       ]
       [ HH.text link.url]
     ]
+  , HH.div
+    []
+    [ HH.text $ Link.formatLinkId link.id
+    ]
   ]
 
 renderNote :: LinkDetail.Note -> HTML
 renderNote note = case note.content of
   LinkDetail.NoteText text ->
     HH.div_
-    [ HH.text text ]
+    [ HH.text text
+    , HH.span
+      [ class_ "ml-3"]
+      [ HH.text $ LinkDetail.formatNoteId note.id
+      ]
+    ]
 
 renderDetail :: LinkDetail -> HTML
 renderDetail detail =

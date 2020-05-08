@@ -3,6 +3,7 @@ module Model.LinkDetail
   , Note
   , NoteId
   , NoteContent(..)
+  , formatNoteId
   , newTextNote
   , load
   , save
@@ -56,6 +57,9 @@ instance decodeJsonNoteContent :: DecodeJson NoteContent where
 
 newNoteId :: Effect NoteId
 newNoteId = NoteId <$> Timestamp.newTimestamp
+
+formatNoteId :: NoteId -> String
+formatNoteId (NoteId ts) = Timestamp.formatTimestamp ts
 
 newTextNote :: String -> Effect Note
 newTextNote text = do

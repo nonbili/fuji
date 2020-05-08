@@ -1,6 +1,7 @@
 module Model.Timestamp
   ( Timestamp
   , newTimestamp
+  , formatTimestamp
   ) where
 
 import Fuji.Prelude
@@ -10,9 +11,12 @@ import Data.Argonaut.Decode (class DecodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 import Data.DateTime.Instant (Instant)
 import Data.DateTime.Instant as Instant
+import Data.JSDate as JSDate
 import Data.String as String
 import Data.Time.Duration (Milliseconds(..))
 import Effect.Now as Now
+import Effect.Unsafe (unsafePerformEffect)
+import Data.TemplateLiteral.Unsafe (template)
 
 newtype Timestamp = Timestamp Instant
 
@@ -33,3 +37,22 @@ instance decodeJsonTimestamp :: DecodeJson Timestamp where
 
 newTimestamp :: Effect Timestamp
 newTimestamp = Timestamp <$> Now.now
+
+formatTimestamp :: Timestamp -> String
+formatTimestamp (Timestamp instant) =
+  template "${year}-${month}-${day} ${hour}:${minute}:${second}"
+    { year
+    , month: month + 1.0
+    , day
+    , hour
+    , minute
+    , second
+    }
+  where
+  date = JSDate.fromInstant instant
+  year = unsafePerformEffect $ JSDate.getFullYear date
+  month = unsafePerformEffect $ JSDate.getMonth date
+  day = unsafePerformEffect $ JSDate.getDate date
+  hour = unsafePerformEffect $ JSDate.getHours date
+  minute = unsafePerformEffect $ JSDate.getMinutes date
+  second = unsafePerformEffect $ JSDate.getSeconds date

@@ -2,6 +2,7 @@ module Model.Link
   ( Link
   , LinkId
   , newLinkId
+  , formatLinkId
   ) where
 
 import Fuji.Prelude
@@ -20,6 +21,9 @@ derive newtype instance decodeJsonLinkId :: DecodeJson LinkId
 
 newLinkId :: Effect LinkId
 newLinkId = LinkId <$> Timestamp.newTimestamp
+
+formatLinkId :: LinkId -> String
+formatLinkId (LinkId ts) = Timestamp.formatTimestamp ts
 
 type Link =
   { id :: LinkId

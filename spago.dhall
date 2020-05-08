@@ -7,6 +7,7 @@
   , "nonbili"
   , "nonbili-halogen"
   , "now"
+  , "template-literals"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs" ]
