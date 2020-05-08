@@ -16,14 +16,13 @@ import Data.Argonaut.Decode.Generic.Rep (genericDecodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 import Data.Argonaut.Encode.Generic.Rep (genericEncodeJson)
 import Data.Argonaut.Parser (jsonParser)
-import Data.DateTime.Instant as Instant
 import Data.Generic.Rep (class Generic)
 import Data.String as String
-import Data.Time.Duration (Milliseconds(..))
-import Effect.Now as Now
 import FFI.Tauri (FileName(..))
 import FFI.Tauri as Tauri
 import Model.Link (LinkId)
+import Model.Timestamp (Timestamp)
+import Model.Timestamp as Timestamp
 
 currentVersion :: Int
 currentVersion = 0
@@ -34,14 +33,10 @@ type LinkDetail =
   , notes :: Array Note
   }
 
-newtype NoteId = NoteId Milliseconds
+newtype NoteId = NoteId Timestamp
 
-instance encodeJsonNoteId :: EncodeJson NoteId where
-  encodeJson (NoteId instant) = encodeJson $ unwrap instant
-
-instance decodeJsonNoteId :: DecodeJson NoteId where
-  decodeJson json = note "Invalid note id" $
-    (pure <<< NoteId <<< Milliseconds) =<< A.toNumber json
+derive newtype instance encodeJsonNoteId :: EncodeJson NoteId
+derive newtype instance decodeJsonNoteId :: DecodeJson NoteId
 
 type Note =
   { id :: NoteId
@@ -60,9 +55,7 @@ instance decodeJsonNoteContent :: DecodeJson NoteContent where
   decodeJson = genericDecodeJson
 
 newNoteId :: Effect NoteId
-newNoteId = do
-  now <- Now.now
-  pure $ NoteId $ Instant.unInstant now
+newNoteId = NoteId <$> Timestamp.newTimestamp
 
 newTextNote :: String -> Effect Note
 newTextNote text = do
