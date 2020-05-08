@@ -44,7 +44,7 @@ initialState =
 
 metaToLink :: Meta -> Effect Link
 metaToLink { url, title, image } = do
-  id <- Link.mkLinkId
+  id <- Link.newLinkId
   pure
     { id
     , url
