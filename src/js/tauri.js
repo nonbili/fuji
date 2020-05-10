@@ -10,7 +10,7 @@ import * as TauriFS from "tauri/api/fs";
 const userAgent = navigator.userAgent.toLowerCase();
 
 // A hacky way to detect if running on tauri.
-const tauriOn = !(
+export const tauriOn = !(
   userAgent.includes("firefox") || userAgent.includes("chrome")
 );
 

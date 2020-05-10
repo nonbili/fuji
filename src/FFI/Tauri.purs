@@ -1,6 +1,6 @@
 module FFI.Tauri
   ( FileName(..)
-  , readFiles
+  , getDataDir
   , readFile
   , writeFile
   ) where
@@ -9,12 +9,14 @@ import Fuji.Prelude
 
 import Control.Promise (Promise)
 import Control.Promise as Promise
+import Data.Nullable (Nullable)
+import Data.Nullable as Nullable
 
 newtype FileName = FileName String
 
-foreign import readFiles_ :: Effect (Promise (Array String))
-readFiles :: Aff (Array String)
-readFiles = Promise.toAffE readFiles_
+foreign import getDataDir_ :: Effect (Nullable String)
+getDataDir ::Effect (Maybe String)
+getDataDir = Nullable.toMaybe <$> getDataDir_
 
 foreign import readFile_ :: String -> Effect (Promise String)
 readFile :: FileName -> Aff String

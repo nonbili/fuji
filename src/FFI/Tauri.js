@@ -1,14 +1,10 @@
-const { readDir, readTextFile } = require("tauri/api/fs");
-const { readFile, writeFile } = require("../../src/js/tauri");
+const { readFile, writeFile, tauriOn } = require("../../src/js/tauri");
 
-const folder = "fuji";
+const folder = tauriOn ? localStorage.getItem("fuji") : "fuji";
 
 const getPath = name => folder + "/" + name;
 
-exports.readFiles_ = () =>
-  readDir(folder).then(files =>
-    Promise.all(files.map(file => readTextFile(file.path)))
-  );
+exports.getDataDir_ = () => folder;
 
 exports.readFile_ = file => () => readFile(getPath(file));
 
