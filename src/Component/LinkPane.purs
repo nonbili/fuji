@@ -31,6 +31,7 @@ data Action
   | Receive Props
   | OnTextNoteChange String
   | OnAddTextNote
+  | HandleNote Int Note.Message
 
 type Slot =
   ( note :: H.Slot Note.Query Note.Message LinkDetail.NoteId
@@ -75,14 +76,15 @@ renderLink state link =
     ]
   ]
 
-renderNote :: LinkDetail.Note -> HTML
-renderNote note =
-  HH.slot _note note.id Note.component note $ const Nothing
+renderNote :: Int -> LinkDetail.Note -> HTML
+renderNote index note =
+  HH.slot _note note.id Note.component note $
+    Just <<< (HandleNote index)
 
 renderDetail :: LinkDetail -> HTML
 renderDetail detail =
   HH.div
-  [] $ map renderNote detail.notes
+  [] $ Array.mapWithIndex renderNote detail.notes
 
 renderTextNoteForm :: State -> HTML
 renderTextNoteForm state =
@@ -155,3 +157,23 @@ handleAction = case _ of
         , textNote = ""
         }
       liftAff $ LinkDetail.save newDetail
+
+  HandleNote index msg -> case msg of
+    Note.MsgUpdate text -> do
+      state <- H.get
+      for_ state.detail \detail -> do
+        let
+          newDetail = detail
+            { notes = fromMaybe detail.notes $
+                Array.modifyAt index (\note -> case note.content of
+                  LinkDetail.NoteText _ -> note
+                    { content = LinkDetail.NoteText text }
+                ) detail.notes
+            }
+        H.modify_ $ _
+          { detail = Just newDetail
+          }
+        liftAff $ LinkDetail.save newDetail
+
+    Note.MsgDelete -> do
+      pure unit

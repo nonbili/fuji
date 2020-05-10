@@ -10,3 +10,11 @@ body {
   @apply text-gray-800 m-0 font-sans;
   line-height: 1.5;
 }
+
+.Btn-primary {
+  @apply bg-green-500 text-white rounded;
+}
+
+.Input {
+  @apply border rounded p-3;
+}

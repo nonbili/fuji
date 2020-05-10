@@ -13,6 +13,7 @@ import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Model.LinkDetail (Note)
 import Model.LinkDetail as LinkDetail
+import Nonbili.Halogen as NbH
 
 type Props = Note
 
@@ -25,8 +26,10 @@ type Query = Const Void
 data Action
   = Init
   | Receive Props
-  | OnBlur
   | OnClickEdit String
+  | OnClickSave
+  | OnClickCancel
+  | OnTextChange String
 
 type HTML = H.ComponentHTML Action () Aff
 
@@ -45,6 +48,8 @@ initialState note =
   , editing: false
   }
 
+inputRef = H.RefLabel "textarea" :: H.RefLabel
+
 render :: State -> HTML
 render state@{ note } = case note.content of
   LinkDetail.NoteText text ->
@@ -52,14 +57,29 @@ render state@{ note } = case note.content of
     [ HH.text $ LinkDetail.formatNoteId note.id
     , if state.editing
       then
-        HH.textarea
-        [ HP.value state.text
-        , HE.onBlur $ Just <<< const OnBlur
+        HH.div_
+        [ HH.textarea
+          [ HP.value state.text
+          , HP.ref inputRef
+          , HE.onValueChange $ Just <<< OnTextChange
+          ]
+        , HH.div_
+          [ HH.button
+            [ class_ "Btn-primary"
+            , HE.onClick $ Just <<< const OnClickSave
+            ]
+            [ HH.text "Save"]
+          , HH.button
+            [ class_ "Btn-white"
+            , HE.onClick $ Just <<< const OnClickCancel
+            ]
+            [ HH.text "Cancel"]
+          ]
         ]
       else
         HH.div_
         [ HH.text text
-        , HH.span
+        , HH.button
           [ class_ "ml-3"
           , HE.onClick $ Just <<< const (OnClickEdit text)
           ]
@@ -73,6 +93,7 @@ component = H.mkComponent
   , render
   , eval: H.mkEval $ H.defaultEval
       { handleAction = handleAction
+      , receive = Just <<< Receive
       }
   }
 
@@ -83,11 +104,21 @@ handleAction = case _ of
   Receive note -> do
     H.modify_ $ _ { note = note }
 
-  OnBlur -> do
-    H.modify_ $ _ { editing = false }
+  OnTextChange text -> do
+    H.modify_ $ _ { text = text }
 
   OnClickEdit text -> do
     H.modify_ $ _
       { editing = true
       , text = text
       }
+    NbH.focus inputRef
+
+  OnClickSave -> do
+    state <- H.get
+    H.modify_ $ _
+      { editing = false }
+    H.raise $ MsgUpdate state.text
+
+  OnClickCancel -> do
+    H.modify_ $ _ { editing = false }
