@@ -58,21 +58,25 @@ initialState props =
 
 renderLink :: State -> Link -> HTML
 renderLink state link =
-  HH.div_
+  HH.div
+  [ class_ "px-3 py-8 border-b" ]
   [ HH.h3
-    []
+    [ class_ "mt-0 mb-1"]
     [ HH.text link.title ]
   , HH.div_
     [ HH.a
-      [ class_ "block truncate"
+      [ class_ "block truncate Link text-sm"
       , HP.href link.url
       , HP.target "_blank"
       ]
       [ HH.text link.url]
     ]
   , HH.div
-    []
-    [ HH.text $ Link.formatLinkId link.id
+    [ class_ "text-right mt-1 text-xs text-gray-600"]
+    [ HH.span
+      [ class_ "mr-1"]
+      [ HH.text "Added"]
+    , HH.text $ Link.formatLinkId link.id
     ]
   ]
 
@@ -83,28 +87,33 @@ renderNote index note =
 
 renderDetail :: LinkDetail -> HTML
 renderDetail detail =
-  HH.div
-  [] $ Array.mapWithIndex renderNote detail.notes
+  NbH.unless (Array.null detail.notes) \\do
+    HH.div_ $ Array.mapWithIndex renderNote detail.notes
 
 renderTextNoteForm :: State -> HTML
 renderTextNoteForm state =
   HH.div
-  []
+  [ class_ "px-3 pt-6"]
   [ HH.textarea
-    [ class_ "block border w-full"
+    [ class_ "block w-full Input"
     , HP.value state.textNote
+    , HP.rows 4
+    , HP.placeholder "This link is ..."
     , HE.onValueChange $ Just <<< OnTextNoteChange
     ]
-  , HH.button
-    [ HE.onClick $ Just <<< const OnAddTextNote
+  , HH.div
+    [ class_ "text-right mt-2"]
+    [ HH.button
+      [ class_ "Btn-primary"
+      , HE.onClick $ Just <<< const OnAddTextNote
+      ]
+      [ HH.text "+ Add Note"]
     ]
-    [ HH.text "+ Add Note"]
   ]
 
 render :: State -> HTML
 render state =
-  HH.div
-  [ class_ "p-4"]
+  HH.div_
   [ NbH.fromMaybe (Array.head state.props) \link ->
      HH.div_
      [ renderLink state link

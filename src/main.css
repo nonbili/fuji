@@ -6,19 +6,46 @@
   border: 0 solid theme('colors.gray.200');
 }
 
+input,
+textarea {
+  @apply text-base;
+}
+
+input::placeholder,
+textarea::placeholder {
+  @apply text-gray-500;
+}
+
+input:focus,
+textarea:focus {
+  outline-color: #48bb78;
+}
+
 body {
   @apply text-gray-800 m-0 font-sans;
   line-height: 1.5;
 }
 
+.Btn {
+  @apply py-1 px-2 cursor-pointer;
+}
+
 .Btn-primary {
-  @apply bg-green-500 text-white rounded;
+  @apply Btn bg-green-500 text-white;
+}
+
+.Btn-normal {
+  @apply Btn bg-gray-200;
 }
 
 .Btn-danger {
-  @apply bg-red-500 text-white rounded;
+  @apply Btn bg-red-500 text-white;
 }
 
 .Input {
-  @apply border rounded p-3;
+  @apply border py-2 px-2 w-full;
+}
+
+.Link {
+  @apply text-green-500 no-underline;
 }

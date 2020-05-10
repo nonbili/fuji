@@ -41,7 +41,7 @@ newTimestamp = Timestamp <$> Now.now
 
 formatTimestamp :: Timestamp -> String
 formatTimestamp (Timestamp instant) =
-  template "${year}-${month}-${day} ${hour}:${minute}:${second}"
+  template "${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}"
     { year
     , month: month + 1.0
     , day

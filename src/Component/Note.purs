@@ -54,14 +54,16 @@ inputRef = H.RefLabel "textarea" :: H.RefLabel
 render :: State -> HTML
 render state@{ note } = case note.content of
   LinkDetail.NoteText text ->
-    HH.div_
-    [ HH.text $ LinkDetail.formatNoteId note.id
-    , if state.editing
+    HH.div
+    [ class_ "border-b px-3 py-2"]
+    [ if state.editing
       then
         HH.div_
         [ HH.textarea
-          [ HP.value state.text
+          [ class_ "Input"
+          , HP.value state.text
           , HP.ref inputRef
+          , HP.rows 5
           , HE.onValueChange $ Just <<< OnTextChange
           ]
         , HH.div
@@ -73,7 +75,7 @@ render state@{ note } = case note.content of
               ]
               [ HH.text "Save"]
             , HH.button
-              [ class_ "Btn-normal"
+              [ class_ "ml-2 Btn-normal"
               , HE.onClick $ Just <<< const OnClickCancel
               ]
               [ HH.text "Cancel"]
@@ -86,14 +88,18 @@ render state@{ note } = case note.content of
           ]
         ]
       else
-        HH.div_
+        HH.div
+        [ class_ "relative group"]
         [ HH.text text
         , HH.button
-          [ class_ "ml-3"
+          [ class_ "absolute top-0 right-0 hidden group-hover:block Btn-normal"
           , HE.onClick $ Just <<< const (OnClickEdit text)
           ]
           [ HH.text "Edit"]
         ]
+    , HH.div
+      [ class_ "text-xs text-gray-600 mt-1 text-right"]
+      [ HH.text $ LinkDetail.formatNoteId note.id ]
     ]
 
 component :: H.Component HH.HTML Query Props Message Aff

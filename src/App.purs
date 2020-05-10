@@ -39,15 +39,19 @@ render state =
     , HE.onSubmit $ Just <<< OnSubmit
     ]
     [ HH.input
-      [ HP.required true
+      [ class_ "py-1 px-2 rounded w-1/3 border-none"
+      , HP.required true
+      , HP.placeholder "Save a link https://any.url"
       , HE.onValueChange $ Just <<< OnValueChange
       ]
     , HH.button
-      [ HP.type_ HP.ButtonSubmit]
+      [ class_ "hidden"
+      , HP.type_ HP.ButtonSubmit
+      ]
       [ HH.text "Add"]
     ]
   , HH.div
-    [ class_ "grid"
+    [ class_ "grid min-h-0"
     , style "grid-template-columns: 1fr auto;"
     ]
     [ HH.div
@@ -55,8 +59,8 @@ render state =
       , style "grid-auto-columns: min-content"
       ] $ map renderLink state.links
     , HH.div
-      [ class_ "border-l"
-      , style "width: 20rem"
+      [ class_ "border-l h-full min-h-0 pb-8 overflow-y-auto"
+      , style "width: 24rem"
       ]
       [ HH.slot _linkPane unit LinkPane.component state.selectedLinks $
           const Nothing
