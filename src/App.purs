@@ -86,7 +86,7 @@ handleAction = case _ of
     H.liftAff (Api.getMeta state.url) >>= traverse_ \meta -> do
       link <- H.liftEffect $ metaToLink meta
       H.modify_ \s -> s { links = Array.snoc s.links link }
-      Eval.persist
+      Eval.save
 
   OnValueChange url -> do
     H.modify_ $ _ { url = url }
@@ -101,4 +101,5 @@ handleAction = case _ of
   OnSubmitInitModal -> do
     state <- H.get
     liftEffect $ Tauri.setDataDir state.dataDir
+    Eval.load
     H.modify_ $ _ { isInitModalOpen = false }

@@ -12,13 +12,16 @@ init :: DSL Unit
 init = do
   liftEffect Tauri.getDataDir >>= case _ of
     Nothing -> H.modify_ $ _ { isInitModalOpen = true }
-    Just _ -> do
-      liftAff Store.load >>= case _ of
-        Left err -> liftEffect $ throw err
-        Right store -> do
-          H.modify_ $ _ { links = store.links }
+    Just _ -> load
 
-persist :: DSL Unit
-persist = do
+load :: DSL Unit
+load = do
+  liftAff Store.load >>= case _ of
+    Left err -> liftEffect $ throw err
+    Right store -> do
+      H.modify_ $ _ { links = store.links }
+
+save :: DSL Unit
+save = do
   state <- H.get
   liftAff $ Store.save state.links
