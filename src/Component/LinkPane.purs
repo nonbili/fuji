@@ -176,4 +176,14 @@ handleAction = case _ of
         liftAff $ LinkDetail.save newDetail
 
     Note.MsgDelete -> do
-      pure unit
+      state <- H.get
+      for_ state.detail \detail -> do
+        let
+          newDetail = detail
+            { notes = fromMaybe detail.notes $
+                Array.deleteAt index detail.notes
+            }
+        H.modify_ $ _
+          { detail = Just newDetail
+          }
+        liftAff $ LinkDetail.save newDetail

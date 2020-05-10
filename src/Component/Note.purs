@@ -29,6 +29,7 @@ data Action
   | OnClickEdit String
   | OnClickSave
   | OnClickCancel
+  | OnClickDelete
   | OnTextChange String
 
 type HTML = H.ComponentHTML Action () Aff
@@ -63,17 +64,25 @@ render state@{ note } = case note.content of
           , HP.ref inputRef
           , HE.onValueChange $ Just <<< OnTextChange
           ]
-        , HH.div_
-          [ HH.button
-            [ class_ "Btn-primary"
-            , HE.onClick $ Just <<< const OnClickSave
+        , HH.div
+          [ class_ "flex justify-between"]
+          [ HH.div_
+            [ HH.button
+              [ class_ "Btn-primary"
+              , HE.onClick $ Just <<< const OnClickSave
+              ]
+              [ HH.text "Save"]
+            , HH.button
+              [ class_ "Btn-normal"
+              , HE.onClick $ Just <<< const OnClickCancel
+              ]
+              [ HH.text "Cancel"]
             ]
-            [ HH.text "Save"]
           , HH.button
-            [ class_ "Btn-white"
-            , HE.onClick $ Just <<< const OnClickCancel
+            [ class_ "Btn-danger"
+            , HE.onClick $ Just <<< const OnClickDelete
             ]
-            [ HH.text "Cancel"]
+            [ HH.text "Delete"]
           ]
         ]
       else
@@ -122,3 +131,6 @@ handleAction = case _ of
 
   OnClickCancel -> do
     H.modify_ $ _ { editing = false }
+
+  OnClickDelete -> do
+    H.raise MsgDelete
