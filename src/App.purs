@@ -6,14 +6,17 @@ import Fuji.Prelude
 
 import Api as Api
 import App.Eval as Eval
+import App.Render.InitModal as InitModal
 import App.Types (Action(..), DSL, HTML, Message, Query, State, _linkPane, initialState, metaToLink)
 import Component.LinkPane as LinkPane
 import Data.Array as Array
+import FFI.Tauri as Tauri
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Model.Link (Link)
+import Nonbili.Halogen as NbH
 import Web.Event.Event as Event
 
 renderLink :: Link -> HTML
@@ -59,6 +62,7 @@ render state =
           const Nothing
       ]
     ]
+  , NbH.when state.isInitModalOpen \\ InitModal.render state
   ]
 
 app :: H.Component HH.HTML Query Unit Message Aff
@@ -89,3 +93,12 @@ handleAction = case _ of
 
   OnSelectLink link -> do
     H.modify_ $ _ { selectedLinks = [link] }
+
+  OnClickOpenDialog -> do
+    dir <- liftAff Tauri.openDialog
+    H.modify_ $ _ { dataDir = dir }
+
+  OnSubmitInitModal -> do
+    state <- H.get
+    liftEffect $ Tauri.setDataDir state.dataDir
+    H.modify_ $ _ { isInitModalOpen = false }

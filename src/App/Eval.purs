@@ -11,7 +11,7 @@ import Model.Store as Store
 init :: DSL Unit
 init = do
   liftEffect Tauri.getDataDir >>= case _ of
-    Nothing -> traceM "config workspace"
+    Nothing -> H.modify_ $ _ { isInitModalOpen = true }
     Just _ -> do
       liftAff Store.load >>= case _ of
         Left err -> liftEffect $ throw err

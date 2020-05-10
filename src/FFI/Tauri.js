@@ -1,12 +1,26 @@
+const TauriDialog = require("tauri/api/dialog");
+const TauriFS = require("tauri/api/fs");
+
 const { readFile, writeFile, tauriOn } = require("../../src/js/tauri");
 
-const folder = tauriOn ? localStorage.getItem("fuji") : "fuji";
+let dataDir = tauriOn ? localStorage.getItem("fuji") : "fuji";
 
-const getPath = name => folder + "/" + name;
+const getFilePath = name => dataDir + "/" + name;
 
-exports.getDataDir_ = () => folder;
+exports.getDataDir_ = () => dataDir;
 
-exports.readFile_ = file => () => readFile(getPath(file));
+exports.setDataDir = dir => () => {
+  dataDir = dir;
+  TauriFS.createDir(getFilePath("notes"));
+  localStorage.setItem("fuji", dir);
+};
+
+exports.readFile_ = file => () => readFile(getFilePath(file));
 
 exports.writeFile_ = file => contents => () =>
-  writeFile(getPath(file), contents);
+  writeFile(getFilePath(file), contents);
+
+exports.openDialog_ = () =>
+  TauriDialog.open({
+    directory: true
+  });

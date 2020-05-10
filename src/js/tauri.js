@@ -17,7 +17,10 @@ export const tauriOn = !(
 export const readFile = file =>
   tauriOn
     ? TauriFS.readTextFile(file)
-    : Promise.resolve(localStorage.getItem(file) || "");
+    : (() => {
+        const data = localStorage.getItem(file);
+        return data ? Promise.resolve(data) : Promise.reject("");
+      })();
 
 export const writeFile = (file, contents) =>
   tauriOn

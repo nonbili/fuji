@@ -18,6 +18,8 @@ data Action
   | OnSubmit Event
   | OnValueChange String
   | OnSelectLink Link
+  | OnClickOpenDialog
+  | OnSubmitInitModal
 
 type Slot =
   ( linkPane :: H.Slot LinkPane.Query LinkPane.Message Unit
@@ -33,6 +35,8 @@ type State =
   { url :: String
   , links :: Array Link
   , selectedLinks :: Array Link
+  , isInitModalOpen :: Boolean
+  , dataDir :: String
   }
 
 initialState :: State
@@ -40,6 +44,8 @@ initialState =
   { url: ""
   , links: []
   , selectedLinks: []
+  , isInitModalOpen: false
+  , dataDir: ""
   }
 
 metaToLink :: Meta -> Effect Link

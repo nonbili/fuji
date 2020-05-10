@@ -18,7 +18,7 @@ import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 import Data.Argonaut.Encode.Generic.Rep (genericEncodeJson)
 import Data.Argonaut.Parser (jsonParser)
 import Data.Generic.Rep (class Generic)
-import Data.String as String
+import Effect.Aff as Aff
 import FFI.Tauri (FileName(..))
 import FFI.Tauri as Tauri
 import Model.Link (LinkId)
@@ -76,16 +76,16 @@ getFileName linkId = FileName $ "notes/" <> show linkId <> ".json"
 
 load :: LinkId -> Aff (Either String LinkDetail)
 load id = do
-  contents <- Tauri.readFile $ getFileName id
-  if String.null contents
-    then
-      pure $ Right
-        { version: currentVersion
-        , id
-        , notes: []
-        }
-    else
+  Aff.attempt (Tauri.readFile $ getFileName id) >>= case _ of
+    Left _ -> pure $ Right defaultDetail
+    Right contents -> do
       pure $ decodeJson =<< jsonParser contents
+  where
+  defaultDetail =
+    { version: currentVersion
+    , id
+    , notes: []
+    }
 
 save :: LinkDetail -> Aff Unit
 save detail = do
