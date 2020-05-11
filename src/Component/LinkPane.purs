@@ -21,7 +21,9 @@ import Nonbili.Halogen as NbH
 
 type Props = Array Link
 
-data Message = MsgUpdate Link
+data Message
+  = MsgUpdate Link
+  | MsgDelete Link
 
 type Query = Const Void
 
@@ -31,6 +33,7 @@ data Action
   | OnClickEditLink
   | OnClickSaveEditLink
   | OnClickCancelEditLink
+  | OnClickDeleteLink
   | OnChangeLinkTitle String
   | OnChangeLinkUrl String
   | OnTextNoteChange String
@@ -97,17 +100,25 @@ renderLink state link =
           , HE.onValueChange $ Just <<< OnChangeLinkUrl
           ]
         ]
-      , HH.div_
-        [ HH.button
-          [ class_ "Btn-primary"
-          , HE.onClick $ Just <<< const OnClickSaveEditLink
+      , HH.div
+        [ class_ "flex justify-between"]
+        [ HH.div_
+          [ HH.button
+            [ class_ "Btn-primary"
+            , HE.onClick $ Just <<< const OnClickSaveEditLink
+            ]
+            [ HH.text "Save"]
+          , HH.button
+            [ class_ "Btn-normal ml-2"
+            , HE.onClick $ Just <<< const OnClickCancelEditLink
+            ]
+            [ HH.text "Cancel"]
           ]
-          [ HH.text "Save"]
         , HH.button
-          [ class_ "Btn-normal ml-2"
-          , HE.onClick $ Just <<< const OnClickCancelEditLink
+          [ class_ "Btn-danger"
+          , HE.onClick $ Just <<< const OnClickDeleteLink
           ]
-          [ HH.text "Cancel"]
+          [ HH.text "Delete"]
         ]
       ]
     else
@@ -217,7 +228,6 @@ handleAction = case _ of
 
   OnClickSaveEditLink -> do
     state <- H.get
-    traceM state
     for_ (Array.head state.props) \link -> do
       H.raise $ MsgUpdate link
         { title = state.editingLinkTitle
@@ -227,6 +237,11 @@ handleAction = case _ of
 
   OnClickCancelEditLink -> do
     H.modify_ $ _ { editingLink = false }
+
+  OnClickDeleteLink -> do
+    state <- H.get
+    for_ (Array.head state.props) \link -> do
+      H.raise $ MsgDelete link
 
   OnChangeLinkTitle title -> do
     H.modify_ $ _ { editingLinkTitle = title }

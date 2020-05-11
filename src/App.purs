@@ -122,3 +122,10 @@ handleAction = case _ of
               Array.updateAt index link state.links
           H.modify_ $ _ { links = newLinks }
           Eval.save
+
+      LinkPane.MsgDelete link -> do
+        H.modify_ $ _
+          { links = Array.delete link state.links
+          , selectedLinkIds = []
+          }
+        Eval.save
