@@ -6,6 +6,7 @@
   "author": "Nonbili",
   "license": "BSD-3-Clause",
   "scripts": {
+    "pscid:build": "spago build",
     "start": "parcel index.html",
     "start:ps": "spago build -w",
     "tauri": "tauri dev"

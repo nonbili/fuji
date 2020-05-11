@@ -21,13 +21,18 @@ import Nonbili.Halogen as NbH
 
 type Props = Array Link
 
-type Message = Void
+data Message = MsgUpdate Link
 
 type Query = Const Void
 
 data Action
   = Init
   | Receive Props
+  | OnClickEditLink
+  | OnClickSaveEditLink
+  | OnClickCancelEditLink
+  | OnChangeLinkTitle String
+  | OnChangeLinkUrl String
   | OnTextNoteChange String
   | OnAddTextNote
   | HandleNote Int Note.Message
@@ -46,6 +51,9 @@ type State =
   { props :: Props
   , detail :: Maybe LinkDetail
   , textNote :: String
+  , editingLink :: Boolean
+  , editingLinkTitle :: String
+  , editingLinkUrl :: String
   }
 
 initialState :: Props -> State
@@ -53,23 +61,75 @@ initialState props =
   { props
   , detail: Nothing
   , textNote: ""
+  , editingLink: false
+  , editingLinkTitle: ""
+  , editingLinkUrl: ""
   }
 
 renderLink :: State -> Link -> HTML
 renderLink state link =
   HH.div
   [ class_ "px-3 py-8 border-b" ]
-  [ HH.h3
-    [ class_ "mt-0 mb-1"]
-    [ HH.text link.title ]
-  , HH.div_
-    [ HH.a
-      [ class_ "block truncate Link text-sm"
-      , HP.href link.url
-      , HP.target "_blank"
+  [ if state.editingLink
+    then
+      HH.div_
+      [ HH.label
+        [ class_ "block mb-3"]
+        [ HH.div
+          [ class_ "font-medium"]
+          [ HH.text "Title"]
+        , HH.input
+          [ class_ "Input"
+          , HP.value state.editingLinkTitle
+          , HP.required true
+          , HE.onValueChange $ Just <<< OnChangeLinkTitle
+          ]
+        ]
+      , HH.label
+        [ class_ "block mb-3"]
+        [ HH.div
+          [ class_ "font-medium"]
+          [ HH.text "URL"]
+        , HH.input
+          [ class_ "Input"
+          , HP.value state.editingLinkUrl
+          , HP.required true
+          , HE.onValueChange $ Just <<< OnChangeLinkUrl
+          ]
+        ]
+      , HH.div_
+        [ HH.button
+          [ class_ "Btn-primary"
+          , HE.onClick $ Just <<< const OnClickSaveEditLink
+          ]
+          [ HH.text "Save"]
+        , HH.button
+          [ class_ "Btn-normal ml-2"
+          , HE.onClick $ Just <<< const OnClickCancelEditLink
+          ]
+          [ HH.text "Cancel"]
+        ]
       ]
-      [ HH.text link.url]
-    ]
+    else
+      HH.div
+      [ class_ "relative group"]
+      [ HH.h3
+        [ class_ "mt-0 mb-1"]
+        [ HH.text link.title ]
+      , HH.div_
+        [ HH.a
+          [ class_ "block truncate Link text-sm"
+          , HP.href link.url
+          , HP.target "_blank"
+          ]
+          [ HH.text link.url]
+        ]
+      , HH.button
+        [ class_ "absolute top-0 right-0 hidden group-hover:block Btn-secondary"
+        , HE.onClick $ Just <<< const OnClickEditLink
+        ]
+        [ HH.text "Edit"]
+      ]
   , HH.div
     [ class_ "text-right mt-1 text-xs text-gray-600"]
     [ HH.span
@@ -142,10 +202,37 @@ handleAction = case _ of
         { props = props
         , detail = Nothing
         , textNote = ""
+        , editingLink = false
         }
       for_ (Array.head props) \link -> do
         liftAff (LinkDetail.load link.id) >>= traverse_ \detail ->
-          H.modify_ $ _ { detail = Just detail }
+          H.modify_ $ _
+            { detail = Just detail
+            , editingLinkTitle = link.title
+            , editingLinkUrl = link.url
+            }
+
+  OnClickEditLink -> do
+    H.modify_ $ _ { editingLink = true }
+
+  OnClickSaveEditLink -> do
+    state <- H.get
+    traceM state
+    for_ (Array.head state.props) \link -> do
+      H.raise $ MsgUpdate link
+        { title = state.editingLinkTitle
+        , url = state.editingLinkUrl
+        }
+    H.modify_ $ _ { editingLink = false }
+
+  OnClickCancelEditLink -> do
+    H.modify_ $ _ { editingLink = false }
+
+  OnChangeLinkTitle title -> do
+    H.modify_ $ _ { editingLinkTitle = title }
+
+  OnChangeLinkUrl url -> do
+    H.modify_ $ _ { editingLinkUrl = url }
 
   OnTextNoteChange textNote -> do
     H.modify_ $ _ { textNote = textNote }

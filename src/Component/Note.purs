@@ -92,7 +92,7 @@ render state@{ note } = case note.content of
         [ class_ "relative group"]
         [ HH.text text
         , HH.button
-          [ class_ "absolute top-0 right-0 hidden group-hover:block Btn-normal"
+          [ class_ "absolute top-0 right-0 hidden group-hover:block Btn-secondary"
           , HE.onClick $ Just <<< const (OnClickEdit text)
           ]
           [ HH.text "Edit"]

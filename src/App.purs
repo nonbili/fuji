@@ -63,12 +63,15 @@ render state =
       [ class_ "border-l h-full min-h-0 pb-8 overflow-y-auto"
       , style "width: 24rem"
       ]
-      [ HH.slot _linkPane unit LinkPane.component state.selectedLinks $
-          const Nothing
+      [ HH.slot _linkPane unit LinkPane.component selectedLinks $
+          Just <<< HandleLinkPane
       ]
     ]
   , NbH.when state.isInitModalOpen \\ InitModal.render state
   ]
+  where
+  selectedLinks = state.links # Array.filter \link ->
+    Array.elem link.id state.selectedLinkIds
 
 app :: H.Component HH.HTML Query Unit Message Aff
 app = H.mkComponent
@@ -97,7 +100,7 @@ handleAction = case _ of
     H.modify_ $ _ { url = url }
 
   OnSelectLink link -> do
-    H.modify_ $ _ { selectedLinks = [link] }
+    H.modify_ $ _ { selectedLinkIds = [link.id] }
 
   OnClickOpenDialog -> do
     dir <- liftAff Tauri.openDialog
@@ -108,3 +111,14 @@ handleAction = case _ of
     void $ liftEffect $ E.try $ Tauri.setDataDir state.dataDir
     Eval.load
     H.modify_ $ _ { isInitModalOpen = false }
+
+  HandleLinkPane msg -> do
+    state <- H.get
+    case msg of
+      LinkPane.MsgUpdate link -> do
+        for_ (Array.findIndex (\x -> x.id == link.id) state.links) \index -> do
+          let
+            newLinks = fromMaybe state.links $
+              Array.updateAt index link state.links
+          H.modify_ $ _ { links = newLinks }
+          Eval.save

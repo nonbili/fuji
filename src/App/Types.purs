@@ -5,7 +5,7 @@ import Fuji.Prelude
 import Api (Meta)
 import Component.LinkPane as LinkPane
 import Halogen as H
-import Model.Link (Link)
+import Model.Link (Link, LinkId)
 import Model.Link as Link
 import Web.Event.Event (Event)
 
@@ -20,6 +20,7 @@ data Action
   | OnSelectLink Link
   | OnClickOpenDialog
   | OnSubmitInitModal
+  | HandleLinkPane LinkPane.Message
 
 type Slot =
   ( linkPane :: H.Slot LinkPane.Query LinkPane.Message Unit
@@ -34,7 +35,7 @@ type DSL = H.HalogenM State Action Slot Message Aff
 type State =
   { url :: String
   , links :: Array Link
-  , selectedLinks :: Array Link
+  , selectedLinkIds :: Array LinkId
   , isInitModalOpen :: Boolean
   , dataDir :: String
   }
@@ -43,7 +44,7 @@ initialState :: State
 initialState =
   { url: ""
   , links: []
-  , selectedLinks: []
+  , selectedLinkIds: []
   , isInitModalOpen: false
   , dataDir: ""
   }
