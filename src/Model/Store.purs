@@ -10,7 +10,7 @@ import Data.Argonaut.Core as A
 import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
 import Data.Argonaut.Parser (jsonParser)
-import Data.String as String
+import Effect.Aff as Aff
 import FFI.Tauri (FileName(..))
 import FFI.Tauri as Tauri
 import Model.Link (Link)
@@ -26,17 +26,17 @@ type Store =
   , links :: Array Link
   }
 
+initialStore :: Store
+initialStore =
+  { version: currentVersion
+  , links: []
+  }
+
 load :: Aff (Either String Store)
 load = do
-  contents <- Tauri.readFile fileName
-  if String.null contents
-    then
-      pure $ Right
-        { version: currentVersion
-        , links: []
-        }
-    else
-      pure $ decodeJson =<< jsonParser contents
+  Aff.attempt (Tauri.readFile fileName) >>= case _ of
+    Left _ -> pure $ Right initialStore
+    Right contents -> pure $ decodeJson =<< jsonParser contents
 
 save :: Array Link -> Aff Unit
 save links = do

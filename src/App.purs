@@ -10,6 +10,7 @@ import App.Render.InitModal as InitModal
 import App.Types (Action(..), DSL, HTML, Message, Query, State, _linkPane, initialState, metaToLink)
 import Component.LinkPane as LinkPane
 import Data.Array as Array
+import Effect.Exception as E
 import FFI.Tauri as Tauri
 import Halogen as H
 import Halogen.HTML as HH
@@ -104,6 +105,6 @@ handleAction = case _ of
 
   OnSubmitInitModal -> do
     state <- H.get
-    liftEffect $ Tauri.setDataDir state.dataDir
+    void $ liftEffect $ E.try $ Tauri.setDataDir state.dataDir
     Eval.load
     H.modify_ $ _ { isInitModalOpen = false }

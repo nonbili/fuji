@@ -9,7 +9,6 @@ import Fuji.Prelude
 
 import Component.Note as Note
 import Data.Array as Array
-import Effect.Exception (throw)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
@@ -75,7 +74,7 @@ renderLink state link =
     [ class_ "text-right mt-1 text-xs text-gray-600"]
     [ HH.span
       [ class_ "mr-1"]
-      [ HH.text "Added"]
+      [ HH.text "Added on"]
     , HH.text $ Link.formatLinkId link.id
     ]
   ]
@@ -107,7 +106,7 @@ renderTextNoteForm state =
       [ class_ "Btn-primary"
       , HE.onClick $ Just <<< const OnAddTextNote
       ]
-      [ HH.text "+ Add Note"]
+      [ HH.text "+ Note"]
     ]
   ]
 
@@ -145,10 +144,8 @@ handleAction = case _ of
         , textNote = ""
         }
       for_ (Array.head props) \link -> do
-        liftAff (LinkDetail.load link.id) >>= case _ of
-          Left err -> liftEffect $ throw err
-          Right detail -> do
-            H.modify_ $ _ { detail = Just detail }
+        liftAff (LinkDetail.load link.id) >>= traverse_ \detail ->
+          H.modify_ $ _ { detail = Just detail }
 
   OnTextNoteChange textNote -> do
     H.modify_ $ _ { textNote = textNote }

@@ -77,11 +77,11 @@ getFileName linkId = FileName $ "notes/" <> show linkId <> ".json"
 load :: LinkId -> Aff (Either String LinkDetail)
 load id = do
   Aff.attempt (Tauri.readFile $ getFileName id) >>= case _ of
-    Left _ -> pure $ Right defaultDetail
+    Left _ -> pure $ Right initialDetail
     Right contents -> do
       pure $ decodeJson =<< jsonParser contents
   where
-  defaultDetail =
+  initialDetail =
     { version: currentVersion
     , id
     , notes: []

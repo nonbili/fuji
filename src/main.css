@@ -6,6 +6,13 @@
   border: 0 solid theme('colors.gray.200');
 }
 
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
 input,
 textarea {
   @apply text-base;
@@ -32,6 +39,10 @@ body {
 
 .Btn-primary {
   @apply Btn bg-green-500 text-white;
+}
+
+.Btn-secondary {
+  @apply Btn bg-blue-500 text-white;
 }
 
 .Btn-normal {
