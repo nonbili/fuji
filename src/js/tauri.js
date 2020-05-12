@@ -26,3 +26,8 @@ export const writeFile = (file, contents) =>
   tauriOn
     ? TauriFS.writeFile({ file, contents })
     : Promise.resolve(localStorage.setItem(file, contents));
+
+export const removeFile = file =>
+  tauriOn
+    ? TauriFS.removeFile(file)
+    : Promise.resolve(localStorage.removeItem(file));

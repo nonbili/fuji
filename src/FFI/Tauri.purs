@@ -4,6 +4,7 @@ module FFI.Tauri
   , setDataDir
   , readFile
   , writeFile
+  , removeFile
   , openDialog
   ) where
 
@@ -29,6 +30,10 @@ readFile (FileName fn)= Promise.toAffE $ readFile_ fn
 foreign import writeFile_ :: String -> String -> Effect Unit
 writeFile :: FileName -> String -> Effect Unit
 writeFile (FileName fn) = writeFile_ fn
+
+foreign import removeFile_ :: String -> Effect Unit
+removeFile :: FileName -> Effect Unit
+removeFile (FileName fn) = removeFile_ fn
 
 foreign import openDialog_ :: Effect (Promise String)
 openDialog :: Aff String

@@ -1,7 +1,12 @@
 const TauriDialog = require("tauri/api/dialog");
 const TauriFS = require("tauri/api/fs");
 
-const { readFile, writeFile, tauriOn } = require("../../src/js/tauri");
+const {
+  readFile,
+  writeFile,
+  removeFile,
+  tauriOn
+} = require("../../src/js/tauri");
 
 let dataDir = tauriOn ? localStorage.getItem("fuji") : "fuji";
 
@@ -19,6 +24,8 @@ exports.readFile_ = file => () => readFile(getFilePath(file));
 
 exports.writeFile_ = file => contents => () =>
   writeFile(getFilePath(file), contents);
+
+exports.removeFile_ = file => () => removeFile(getFilePath(file));
 
 exports.openDialog_ = () =>
   TauriDialog.open({

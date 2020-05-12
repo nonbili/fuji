@@ -7,6 +7,7 @@ module Model.LinkDetail
   , newTextNote
   , load
   , save
+  , delete
   ) where
 
 import Fuji.Prelude
@@ -94,3 +95,7 @@ save detail = do
     , id: detail.id
     , notes: detail.notes
     }
+
+delete :: LinkId -> Aff Unit
+delete id = do
+  liftEffect $ Tauri.removeFile $ getFileName id

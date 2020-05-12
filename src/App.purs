@@ -17,6 +17,7 @@ import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Model.Link (Link)
+import Model.LinkDetail as LinkDetail
 import Nonbili.Halogen as NbH
 import Web.Event.Event as Event
 
@@ -129,3 +130,4 @@ handleAction = case _ of
           , selectedLinkIds = []
           }
         Eval.save
+        liftAff $ LinkDetail.delete link.id
