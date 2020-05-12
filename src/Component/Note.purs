@@ -13,6 +13,7 @@ import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Model.LinkDetail (Note)
 import Model.LinkDetail as LinkDetail
+import Nonbili.DOM as NbDom
 import Nonbili.Halogen as NbH
 
 type Props = Note
@@ -30,7 +31,7 @@ data Action
   | OnClickSave
   | OnClickCancel
   | OnClickDelete
-  | OnTextChange String
+  | OnTextInput String
 
 type HTML = H.ComponentHTML Action () Aff
 
@@ -60,11 +61,11 @@ render state@{ note } = case note.content of
       then
         HH.div_
         [ HH.textarea
-          [ class_ "Input"
+          [ class_ "Input resize-none"
+          , style "height: 80px"
           , HP.value state.text
           , HP.ref inputRef
-          , HP.rows 5
-          , HE.onValueChange $ Just <<< OnTextChange
+          , HE.onValueInput $ Just <<< OnTextInput
           ]
         , HH.div
           [ class_ "flex justify-between"]
@@ -89,7 +90,7 @@ render state@{ note } = case note.content of
         ]
       else
         HH.div
-        [ class_ "relative group"]
+        [ class_ "relative group break-all whitespace-pre-wrap"]
         [ HH.text text
         , HH.button
           [ class_ "absolute top-0 right-0 hidden group-hover:block Btn-secondary"
@@ -112,6 +113,11 @@ component = H.mkComponent
       }
   }
 
+fitTextarea :: DSL Unit
+fitTextarea = do
+  H.getHTMLElementRef inputRef >>= traverse_ \el ->
+    liftEffect $ NbDom.fitTextareaHeight el 80.0
+
 handleAction :: Action -> DSL Unit
 handleAction = case _ of
   Init -> pure unit
@@ -119,8 +125,9 @@ handleAction = case _ of
   Receive note -> do
     H.modify_ $ _ { note = note }
 
-  OnTextChange text -> do
+  OnTextInput text -> do
     H.modify_ $ _ { text = text }
+    fitTextarea
 
   OnClickEdit text -> do
     H.modify_ $ _
@@ -128,6 +135,7 @@ handleAction = case _ of
       , text = text
       }
     NbH.focus inputRef
+    fitTextarea
 
   OnClickSave -> do
     state <- H.get

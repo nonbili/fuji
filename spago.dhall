@@ -5,6 +5,7 @@
   , "effect"
   , "halogen"
   , "nonbili"
+  , "nonbili-dom"
   , "nonbili-halogen"
   , "now"
   , "template-literals"

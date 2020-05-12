@@ -17,6 +17,7 @@ import Model.Link (Link)
 import Model.Link as Link
 import Model.LinkDetail (LinkDetail)
 import Model.LinkDetail as LinkDetail
+import Nonbili.DOM as NbDom
 import Nonbili.Halogen as NbH
 
 type Props = Array Link
@@ -36,7 +37,7 @@ data Action
   | OnClickDeleteLink
   | OnChangeLinkTitle String
   | OnChangeLinkUrl String
-  | OnTextNoteChange String
+  | OnTextNoteInput String
   | OnAddTextNote
   | HandleNote Int Note.Message
 
@@ -160,16 +161,19 @@ renderDetail detail =
   NbH.unless (Array.null detail.notes) \\do
     HH.div_ $ Array.mapWithIndex renderNote detail.notes
 
+inputRef = H.RefLabel "textarea" :: H.RefLabel
+
 renderTextNoteForm :: State -> HTML
 renderTextNoteForm state =
   HH.div
   [ class_ "px-3 pt-6"]
   [ HH.textarea
-    [ class_ "block w-full Input"
+    [ class_ "block w-full Input resize-none"
+    , style "height: 80px"
     , HP.value state.textNote
-    , HP.rows 4
     , HP.placeholder "This link is ..."
-    , HE.onValueChange $ Just <<< OnTextNoteChange
+    , HP.ref inputRef
+    , HE.onValueInput $ Just <<< OnTextNoteInput
     ]
   , HH.div
     [ class_ "text-right mt-2"]
@@ -249,8 +253,10 @@ handleAction = case _ of
   OnChangeLinkUrl url -> do
     H.modify_ $ _ { editingLinkUrl = url }
 
-  OnTextNoteChange textNote -> do
+  OnTextNoteInput textNote -> do
     H.modify_ $ _ { textNote = textNote }
+    H.getHTMLElementRef inputRef >>= traverse_ \el ->
+      liftEffect $ NbDom.fitTextareaHeight el 80.0
 
   OnAddTextNote -> do
     state <- H.get

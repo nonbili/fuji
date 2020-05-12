@@ -15,7 +15,8 @@ p {
 
 input,
 textarea {
-  @apply text-base;
+  line-height: inherit;
+  font: inherit;
 }
 
 input::placeholder,
