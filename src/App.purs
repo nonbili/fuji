@@ -46,8 +46,10 @@ render state =
     ]
     [ HH.input
       [ class_ "py-1 px-2 rounded w-1/3 border-none"
+      , HP.value state.url
       , HP.required true
       , HP.placeholder "Save a link https://any.url"
+      , NbH.attr "onfocus" "this.select()"
       , HE.onValueChange $ Just <<< OnValueChange
       ]
     , HH.button
@@ -98,7 +100,10 @@ handleAction = case _ of
     state <- H.get
     H.liftAff (Api.getMeta state.url) >>= traverse_ \meta -> do
       link <- H.liftEffect $ metaToLink meta
-      H.modify_ \s -> s { links = Array.snoc s.links link }
+      H.modify_ \s -> s
+        { links = Array.snoc s.links link
+        , url = ""
+        }
       Eval.save
 
   OnValueChange url -> do
