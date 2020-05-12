@@ -10,6 +10,7 @@ import App.Render.InitModal as InitModal
 import App.Types (Action(..), DSL, HTML, Message, Query, State, _linkPane, initialState, metaToLink)
 import Component.LinkPane as LinkPane
 import Data.Array as Array
+import Data.Monoid as Monoid
 import Effect.Exception as E
 import FFI.Tauri as Tauri
 import Halogen as H
@@ -21,14 +22,17 @@ import Model.LinkDetail as LinkDetail
 import Nonbili.Halogen as NbH
 import Web.Event.Event as Event
 
-renderLink :: Link -> HTML
-renderLink link =
+renderLink :: State -> Link -> HTML
+renderLink state link =
   HH.img
-  [ class_ "object-contain hover:bg-gray-200 cursor-pointer"
+  [ class_ $ "object-contain hover:bg-gray-200 cursor-pointer" <>
+      Monoid.guard selected " border-green-500 border-2 py-2"
   , style "width: 12rem; height: 16rem;"
   , HP.src $ fromMaybe "" link.image
   , HE.onClick $ Just <<< const (OnSelectLink link)
   ]
+  where
+  selected = Array.elem link.id state.selectedLinkIds
 
 render :: State -> HTML
 render state =
@@ -59,7 +63,7 @@ render state =
     [ HH.div
       [ class_ "p-4 grid grid-flow-col gap-4"
       , style "grid-auto-columns: min-content"
-      ] $ map renderLink state.links
+      ] $ map (renderLink state) state.links
     , HH.div
       [ class_ "border-l h-full min-h-0 pb-8 overflow-y-auto"
       , style "width: 24rem"

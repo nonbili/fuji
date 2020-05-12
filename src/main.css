@@ -26,12 +26,13 @@ textarea::placeholder {
 
 input:focus,
 textarea:focus {
-  outline-color: #48bb78;
+  outline-color: theme('colors.green.500');
 }
 
 body {
   @apply text-gray-800 m-0 font-sans;
   line-height: 1.5;
+  --primary-color: theme('colors.green.500');
 }
 
 .Btn {
