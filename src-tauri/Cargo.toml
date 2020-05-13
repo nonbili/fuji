@@ -1,11 +1,11 @@
 [package]
-name = "app"
+name = "fuji"
 version = "0.1.0"
 description = "Fuji"
 authors = [ "Nonbili" ]
 license = "BSD-3-Clause"
 repository = "https://github.com/nonbili/fuji"
-default-run = "app"
+default-run = "fuji"
 edition = "2018"
 build = "src/build.rs"
 
@@ -23,5 +23,5 @@ embedded-server = [ "tauri/embedded-server" ]
 no-server = [ "tauri/no-server" ]
 
 [[bin]]
-name = "app"
+name = "fuji"
 path = "src/main.rs"

@@ -6,6 +6,7 @@
   "author": "Nonbili",
   "license": "BSD-3-Clause",
   "scripts": {
+    "build": "spago bundle-module -m Main -t output/Main/index.js -u '+RTS -N2 -RTS' && parcel build --no-source-maps index.html && tauri build",
     "pscid:build": "spago build",
     "start": "parcel index.html",
     "start:ps": "spago build -w",
