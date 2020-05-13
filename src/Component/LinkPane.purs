@@ -101,7 +101,7 @@ renderLink state link =
           [ class_ "Input"
           , HP.value state.editingLinkUrl
           , HP.required true
-          , NbH.attr "onfocus" "this.select()"
+          , NbH.attr "onfocus" "setTimeout(() => this.select())"
           , HE.onValueChange $ Just <<< OnChangeLinkUrl
           ]
         ]
@@ -113,7 +113,7 @@ renderLink state link =
         , HH.input
           [ class_ "Input"
           , HP.value state.editingLinkImage
-          , NbH.attr "onfocus" "this.select()"
+          , NbH.attr "onfocus" "setTimeout(() => this.select())"
           , HE.onValueChange $ Just <<< OnChangeLinkImage
           ]
         ]

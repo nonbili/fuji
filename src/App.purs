@@ -49,7 +49,7 @@ render state =
       , HP.value state.url
       , HP.required true
       , HP.placeholder "Save a link https://any.url"
-      , NbH.attr "onfocus" "this.select()"
+      , NbH.attr "onfocus" "setTimeout(() => this.select())"
       , HE.onValueChange $ Just <<< OnValueChange
       ]
     , HH.button
