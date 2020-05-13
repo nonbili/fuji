@@ -25,7 +25,7 @@ import Web.Event.Event as Event
 renderLink :: State -> Link -> HTML
 renderLink state link =
   HH.img
-  [ class_ $ "object-contain hover:bg-gray-200 cursor-pointer" <>
+  [ class_ $ "object-contain hover:bg-gray-200 cursor-pointer m-2" <>
       Monoid.guard selected " border-green-500 border-2 py-2"
   , style "width: 12rem; height: 16rem;"
   , HP.src $ fromMaybe "" link.image
@@ -63,8 +63,7 @@ render state =
     , style "grid-template-columns: 1fr auto;"
     ]
     [ HH.div
-      [ class_ "p-4 grid grid-flow-col gap-4"
-      , style "grid-auto-columns: min-content"
+      [ class_ "p-4 flex flex-wrap min-w-0 overflow-y-auto"
       ] $ map (renderLink state) state.links
     , HH.div
       [ class_ "border-l h-full min-h-0 pb-8 overflow-y-auto"

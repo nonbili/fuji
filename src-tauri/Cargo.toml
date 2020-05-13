@@ -9,6 +9,16 @@ default-run = "fuji"
 edition = "2018"
 build = "src/build.rs"
 
+[package.metadata.bundle]
+identifier = "jp.nonbili.fuji"
+icon = [
+  "icons/32x32.png",
+  "icons/128x128.png",
+  "icons/128x128@2x.png",
+  "icons/icon.icns",
+  "icons/icon.ico"
+]
+
 [dependencies]
 serde_json = "1.0"
 serde = { version = "1.0", features = [ "derive" ] }
