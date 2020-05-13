@@ -37,6 +37,7 @@ data Action
   | OnClickDeleteLink
   | OnChangeLinkTitle String
   | OnChangeLinkUrl String
+  | OnChangeLinkImage String
   | OnTextNoteInput String
   | OnAddTextNote
   | HandleNote Int Note.Message
@@ -58,6 +59,7 @@ type State =
   , editingLink :: Boolean
   , editingLinkTitle :: String
   , editingLinkUrl :: String
+  , editingLinkImage :: String
   }
 
 initialState :: Props -> State
@@ -68,6 +70,7 @@ initialState props =
   , editingLink: false
   , editingLinkTitle: ""
   , editingLinkUrl: ""
+  , editingLinkImage: ""
   }
 
 renderLink :: State -> Link -> HTML
@@ -80,7 +83,7 @@ renderLink state link =
       [ HH.label
         [ class_ "block mb-3"]
         [ HH.div
-          [ class_ "font-medium"]
+          [ class_ "font-medium text-gray-600"]
           [ HH.text "Title"]
         , HH.input
           [ class_ "Input"
@@ -92,13 +95,26 @@ renderLink state link =
       , HH.label
         [ class_ "block mb-3"]
         [ HH.div
-          [ class_ "font-medium"]
+          [ class_ "font-medium text-gray-600"]
           [ HH.text "URL"]
         , HH.input
           [ class_ "Input"
           , HP.value state.editingLinkUrl
           , HP.required true
+          , NbH.attr "onfocus" "this.select()"
           , HE.onValueChange $ Just <<< OnChangeLinkUrl
+          ]
+        ]
+      , HH.label
+        [ class_ "block mb-3"]
+        [ HH.div
+          [ class_ "font-medium text-gray-600"]
+          [ HH.text "Image"]
+        , HH.input
+          [ class_ "Input"
+          , HP.value state.editingLinkImage
+          , NbH.attr "onfocus" "this.select()"
+          , HE.onValueChange $ Just <<< OnChangeLinkImage
           ]
         ]
       , HH.div
@@ -225,6 +241,7 @@ handleAction = case _ of
             { detail = Just detail
             , editingLinkTitle = link.title
             , editingLinkUrl = link.url
+            , editingLinkImage = fromMaybe "" link.image
             }
 
   OnClickEditLink -> do
@@ -236,6 +253,7 @@ handleAction = case _ of
       H.raise $ MsgUpdate link
         { title = state.editingLinkTitle
         , url = state.editingLinkUrl
+        , image = Just state.editingLinkImage
         }
     H.modify_ $ _ { editingLink = false }
 
@@ -252,6 +270,9 @@ handleAction = case _ of
 
   OnChangeLinkUrl url -> do
     H.modify_ $ _ { editingLinkUrl = url }
+
+  OnChangeLinkImage image -> do
+    H.modify_ $ _ { editingLinkImage = image }
 
   OnTextNoteInput textNote -> do
     H.modify_ $ _ { textNote = textNote }
