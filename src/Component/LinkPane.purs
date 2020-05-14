@@ -205,7 +205,8 @@ renderTextNoteForm state =
 
 render :: State -> HTML
 render state =
-  HH.div_
+  HH.div
+  [ class_ "pb-8"]
   [ NbH.fromMaybe (Array.head state.props) \link ->
      HH.div_
      [ renderLink state link

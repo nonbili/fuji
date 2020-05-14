@@ -37,8 +37,7 @@ renderLink state link =
 render :: State -> HTML
 render state =
   HH.div
-  [ class_ "grid h-screen"
-  , style "grid-template-rows: auto 1fr"
+  [ class_ "flex flex-col h-screen"
   ]
   [ HH.form
     [ class_ "bg-blue-200 py-2 px-4"
@@ -59,14 +58,13 @@ render state =
       [ HH.text "Add"]
     ]
   , HH.div
-    [ class_ "grid min-h-0"
-    , style "grid-template-columns: 1fr auto;"
+    [ class_ "flex-1 flex min-h-0"
     ]
     [ HH.div
-      [ class_ "p-4 flex flex-wrap content-start min-w-0 overflow-y-auto"
+      [ class_ "flex-1 p-4 flex flex-wrap content-start min-w-0 overflow-y-auto"
       ] $ map (renderLink state) state.links
     , HH.div
-      [ class_ "border-l h-full min-h-0 pb-8 overflow-y-auto"
+      [ class_ "border-l h-full min-h-0 overflow-y-auto"
       , style "width: 24rem"
       ]
       [ HH.slot _linkPane unit LinkPane.component selectedLinks $
