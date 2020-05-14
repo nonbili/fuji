@@ -19,6 +19,7 @@ import Model.LinkDetail (LinkDetail)
 import Model.LinkDetail as LinkDetail
 import Nonbili.DOM as NbDom
 import Nonbili.Halogen as NbH
+import Web.Event.Event as Event
 
 type Props = Array Link
 
@@ -32,7 +33,7 @@ data Action
   = Init
   | Receive Props
   | OnClickEditLink
-  | OnClickSaveEditLink
+  | OnSubmitEditLink Event.Event
   | OnClickCancelEditLink
   | OnClickDeleteLink
   | OnChangeLinkTitle String
@@ -79,7 +80,8 @@ renderLink state link =
   [ class_ "px-3 py-8 border-b" ]
   [ if state.editingLink
     then
-      HH.div_
+      HH.form
+      [ HE.onSubmit $ Just <<< OnSubmitEditLink ]
       [ HH.label
         [ class_ "block mb-3"]
         [ HH.div
@@ -122,7 +124,7 @@ renderLink state link =
         [ HH.div_
           [ HH.button
             [ class_ "Btn-primary"
-            , HE.onClick $ Just <<< const OnClickSaveEditLink
+            , HP.type_ HP.ButtonSubmit
             ]
             [ HH.text "Save"]
           , HH.button
@@ -247,7 +249,8 @@ handleAction = case _ of
   OnClickEditLink -> do
     H.modify_ $ _ { editingLink = true }
 
-  OnClickSaveEditLink -> do
+  OnSubmitEditLink event -> do
+    liftEffect $ Event.preventDefault event
     state <- H.get
     for_ (Array.head state.props) \link -> do
       H.raise $ MsgUpdate link
