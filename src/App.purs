@@ -63,7 +63,7 @@ render state =
     , style "grid-template-columns: 1fr auto;"
     ]
     [ HH.div
-      [ class_ "p-4 flex flex-wrap min-w-0 overflow-y-auto"
+      [ class_ "p-4 flex flex-wrap content-start min-w-0 overflow-y-auto"
       ] $ map (renderLink state) state.links
     , HH.div
       [ class_ "border-l h-full min-h-0 pb-8 overflow-y-auto"
