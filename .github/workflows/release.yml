@@ -1,0 +1,129 @@
+name: release
+
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  check-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: install rust stable
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+      - name: install webkit2gtk
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y webkit2gtk-4.0
+      - run: yarn
+      - name: build fuji
+        run: yarn add --dev purescript spago parcel
+      - run: cargo install tauri-bundler --force
+      - name: build tauri app
+        run: yarn build
+
+  create-release:
+    needs: check-build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: get version
+        run: echo ::set-env name=PACKAGE_VERSION::$(node -p "require('./package.json').version")
+      - name: create release
+        id: create_tauri_release
+        uses: jbolda/create-release@v1.1.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ matrix.package.name }}-v${{ env.PACKAGE_VERSION }}
+          release_name: "Release fuji app v${{ env.PACKAGE_VERSION }}"
+          body: "See the assets to download this version and install."
+          draft: true
+          prerelease: false
+      - run: echo "${{ steps.create_tauri_release.outputs.upload_url }}" > release-url.txt
+      - uses: actions/upload-artifact@v1
+        with:
+          name: release-url
+          path: ./release-url.txt
+
+  create-and-upload-assets:
+    needs: create-release
+    runs-on: ${{ matrix.platform }}
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-latest]
+        include:
+          - platform: ubuntu-latest
+            buildFolder: bundle/deb
+            ext: _0.1.0_amd64.deb
+            compressed: ''
+          # - platform: macos-latest
+          #   buildFolder: bundle/osx
+          #   ext: .app
+          #   compressed: .tgz
+          # - platform: windows-latest
+          #   buildFolder: ''
+          #   ext: .x64.msi
+          #   compressed: ''
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: download file with upload url
+        uses: actions/download-artifact@v1
+        with:
+          name: release-url
+      - name: pull upload url
+        shell: bash
+        run: echo ::set-env name=RELEASE_UPLOAD_URL::$(cat ./release-url/release-url.txt)
+      - name: setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: install rust stable
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+      - name: install webkit2gtk (ubuntu only)
+        if: matrix.platform == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y webkit2gtk-4.0
+      - run: yarn
+      - name: build fuji
+        run: yarn add --dev purescript spago parcel
+      - run: cargo install tauri-bundler --force
+      - name: build tauri app
+        run: yarn build
+      - name: compress (macos only)
+        if: matrix.platform == 'macos-latest'
+        working-directory: ${{ format('./src-tauri/target/release/{0}', matrix.buildFolder ) }}
+        run: tar -czf ${{ format('fuji{0}{1}', matrix.ext, matrix.compressed ) }} ${{ format('fuji{0}', matrix.ext ) }}
+      - name: upload release asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ env.RELEASE_UPLOAD_URL }}
+          asset_path: ${{ format('./src-tauri/target/release/{0}/fuji{1}{2}', matrix.buildFolder, matrix.ext, matrix.compressed ) }}
+          asset_name: ${{ format('fuji{0}{1}', matrix.ext, matrix.compressed ) }}
+          asset_content_type: application/zip
