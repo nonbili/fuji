@@ -224,6 +224,11 @@ component = H.mkComponent
       }
   }
 
+fitTextarea :: DSL Unit
+fitTextarea =
+  H.getHTMLElementRef inputRef >>= traverse_ \el ->
+    liftEffect $ NbDom.fitTextareaHeight el 80.0
+
 handleAction :: Action -> DSL Unit
 handleAction = case _ of
   Init -> pure unit
@@ -279,8 +284,7 @@ handleAction = case _ of
 
   OnTextNoteInput textNote -> do
     H.modify_ $ _ { textNote = textNote }
-    H.getHTMLElementRef inputRef >>= traverse_ \el ->
-      liftEffect $ NbDom.fitTextareaHeight el 80.0
+    fitTextarea
 
   OnAddTextNote -> do
     state <- H.get
@@ -294,6 +298,8 @@ handleAction = case _ of
         { detail = Just newDetail
         , textNote = ""
         }
+      -- Reset textarea height after submitting
+      fitTextarea
       liftAff $ LinkDetail.save newDetail
 
   HandleNote index msg -> case msg of
