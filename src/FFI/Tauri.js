@@ -5,19 +5,25 @@ const {
   readFile,
   writeFile,
   removeFile,
+  readConfig,
+  writeConfig,
   tauriOn
 } = require("../../src/js/tauri");
 
-let dataDir = tauriOn ? localStorage.getItem("fuji") : "fuji";
+let dataDir;
 
 const getFilePath = name => dataDir + "/" + name;
 
-exports.getDataDir_ = () => dataDir;
+exports.getDataDir_ = () =>
+  readConfig().then(config => {
+    dataDir = config.dataDir;
+    return dataDir;
+  });
 
 exports.setDataDir = dir => () => {
   dataDir = dir;
   TauriFS.createDir(getFilePath("notes"));
-  localStorage.setItem("fuji", dir);
+  writeConfig({ dataDir });
 };
 
 exports.readFile_ = file => () => readFile(getFilePath(file));

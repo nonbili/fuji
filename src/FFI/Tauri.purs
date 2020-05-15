@@ -12,14 +12,12 @@ import Fuji.Prelude
 
 import Control.Promise (Promise)
 import Control.Promise as Promise
-import Data.Nullable (Nullable)
-import Data.Nullable as Nullable
 
 newtype FileName = FileName String
 
-foreign import getDataDir_ :: Effect (Nullable String)
-getDataDir ::Effect (Maybe String)
-getDataDir = Nullable.toMaybe <$> getDataDir_
+foreign import getDataDir_ :: Effect (Promise String)
+getDataDir ::Aff String
+getDataDir = Promise.toAffE getDataDir_
 
 foreign import setDataDir :: String -> Effect Unit
 

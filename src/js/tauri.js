@@ -31,3 +31,29 @@ export const removeFile = file =>
   tauriOn
     ? TauriFS.removeFile(file)
     : Promise.resolve(localStorage.removeItem(file));
+
+if (tauriOn) {
+  // Init fuji filder inside the system config folder. e.g. `~/.config/fuji` on
+  // Linux.
+  const configDirOption = { dir: TauriFS.Dir.Config };
+  TauriFS.readDir("fuji", configDirOption).then(
+    () => {},
+    () => {
+      TauriFS.createDir("fuji", configDirOption);
+    }
+  );
+}
+
+const appDirOption = { dir: TauriFS.Dir.App };
+
+export const readConfig = () =>
+  tauriOn
+    ? TauriFS.readTextFile("config.json", appDirOption).then(JSON.parse)
+    : Promise.resolve({ dataDir: "fuji" });
+
+export const writeConfig = config => {
+  const contents = JSON.stringify(config);
+  tauriOn
+    ? TauriFS.writeFile({ file: "config.json", contents }, appDirOption)
+    : Promise.resolve(localStorage.setItem("fuji", contents));
+};
