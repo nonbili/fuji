@@ -98,7 +98,7 @@ handleAction = case _ of
     H.liftAff (Api.getMeta state.url) >>= traverse_ \meta -> do
       link <- H.liftEffect $ metaToLink meta
       H.modify_ \s -> s
-        { links = Array.snoc s.links link
+        { links = Array.cons link s.links
         , url = ""
         }
       Eval.save
