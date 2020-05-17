@@ -3,7 +3,7 @@ module FFI.Tauri
   , getDataDir
   , setDataDir
   , readFile
-  , writeFile
+  , writeJson
   , removeFile
   , openDialog
   ) where
@@ -12,6 +12,7 @@ import Fuji.Prelude
 
 import Control.Promise (Promise)
 import Control.Promise as Promise
+import Data.Argonaut.Core (Json)
 
 newtype FileName = FileName String
 
@@ -25,9 +26,9 @@ foreign import readFile_ :: String -> Effect (Promise String)
 readFile :: FileName -> Aff String
 readFile (FileName fn)= Promise.toAffE $ readFile_ fn
 
-foreign import writeFile_ :: String -> String -> Effect Unit
-writeFile :: FileName -> String -> Effect Unit
-writeFile (FileName fn) = writeFile_ fn
+foreign import writeJson_ :: String -> Json -> Effect Unit
+writeJson :: FileName -> Json -> Effect Unit
+writeJson (FileName fn) = writeJson_ fn
 
 foreign import removeFile_ :: String -> Effect Unit
 removeFile :: FileName -> Effect Unit

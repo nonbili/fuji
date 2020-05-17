@@ -6,7 +6,6 @@ module Model.Store
 
 import Fuji.Prelude
 
-import Data.Argonaut.Core as A
 import Data.Argonaut.Decode (decodeJson)
 import Data.Argonaut.Encode (encodeJson)
 import Data.Argonaut.Parser (jsonParser)
@@ -40,7 +39,7 @@ load = do
 
 save :: Array Link -> Aff Unit
 save links = do
-  liftEffect $ Tauri.writeFile fileName $ A.stringify $ encodeJson
+  liftEffect $ Tauri.writeJson fileName $ encodeJson
     { version: currentVersion
     , links
     }

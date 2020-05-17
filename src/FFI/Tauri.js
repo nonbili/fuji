@@ -3,7 +3,7 @@ const TauriFS = require("tauri/api/fs");
 
 const {
   readFile,
-  writeFile,
+  writeJson,
   removeFile,
   readConfig,
   writeConfig,
@@ -28,8 +28,7 @@ exports.setDataDir = dir => () => {
 
 exports.readFile_ = file => () => readFile(getFilePath(file));
 
-exports.writeFile_ = file => contents => () =>
-  writeFile(getFilePath(file), contents);
+exports.writeJson_ = file => json => () => writeJson(getFilePath(file), json);
 
 exports.removeFile_ = file => () => removeFile(getFilePath(file));
 

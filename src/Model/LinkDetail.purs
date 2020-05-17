@@ -12,7 +12,6 @@ module Model.LinkDetail
 
 import Fuji.Prelude
 
-import Data.Argonaut.Core as A
 import Data.Argonaut.Decode (class DecodeJson, decodeJson)
 import Data.Argonaut.Decode.Generic.Rep (genericDecodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
@@ -90,7 +89,7 @@ load id = do
 
 save :: LinkDetail -> Aff Unit
 save detail = do
-  liftEffect $ Tauri.writeFile (getFileName detail.id) $ A.stringify $ encodeJson
+  liftEffect $ Tauri.writeJson (getFileName detail.id) $ encodeJson
     { version: currentVersion
     , id: detail.id
     , notes: detail.notes
