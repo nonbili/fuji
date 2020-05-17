@@ -3,10 +3,14 @@ module App.Eval where
 import Fuji.Prelude
 
 import App.Types (DSL)
+import Data.Array as Array
+import Data.Ordering as Ord
 import Effect.Aff as Aff
 import FFI.Tauri as Tauri
 import Halogen as H
-import Model.Store as Store
+import Model.Link (Link)
+import Model.Link as Link
+import Model.LinkDetail as LinkDetail
 
 init :: DSL Unit
 init = do
@@ -16,10 +20,22 @@ init = do
 
 load :: DSL Unit
 load = do
-  liftAff Store.load >>= traverse_ \store ->
-    H.modify_ $ _ { links = store.links }
+  liftAff Link.loadAll >>= traverse_ \links ->
+    H.modify_ $ _
+      { links = links # Array.sortBy \x1 x2 ->
+          Ord.invert $ compare x1.id x2.id
+      }
 
-save :: DSL Unit
-save = do
-  state <- H.get
-  liftAff $ Store.save state.links
+saveLink :: Link -> DSL Unit
+saveLink link = do
+  liftAff $ Link.save link
+
+deleteLink :: Link -> DSL Unit
+deleteLink link = do
+  H.modify_ \s -> s
+    { links = Array.delete link s.links
+    , selectedLinkIds = []
+    }
+  liftAff do
+    Link.delete link.id
+    LinkDetail.delete link.id

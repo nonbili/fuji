@@ -14,6 +14,16 @@ export const tauriOn = !(
   userAgent.includes("firefox") || userAgent.includes("chrome")
 );
 
+export const readLinks = dir =>
+  tauriOn
+    ? TauriFS.readDir(dir).then(files =>
+        Promise.all(files.map(file => TauriFS.readTextFile(file.path)))
+      )
+    : (() => {
+        const keys = Object.keys(localStorage).filter(x => x.startsWith(dir));
+        return Promise.resolve(keys.map(x => localStorage.getItem(x)));
+      })();
+
 export const readFile = file =>
   tauriOn
     ? TauriFS.readTextFile(file)

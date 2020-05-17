@@ -2,6 +2,7 @@ const TauriDialog = require("tauri/api/dialog");
 const TauriFS = require("tauri/api/fs");
 
 const {
+  readLinks,
   readFile,
   writeJson,
   removeFile,
@@ -23,8 +24,11 @@ exports.getDataDir_ = () =>
 exports.setDataDir = dir => () => {
   dataDir = dir;
   TauriFS.createDir(getFilePath("notes"));
+  TauriFS.createDir(getFilePath("links"));
   writeConfig({ dataDir });
 };
+
+exports.readLinks_ = dir => () => readLinks(getFilePath(dir));
 
 exports.readFile_ = file => () => readFile(getFilePath(file));
 

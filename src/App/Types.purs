@@ -2,11 +2,9 @@ module App.Types where
 
 import Fuji.Prelude
 
-import Api (Meta)
 import Component.LinkPane as LinkPane
 import Halogen as H
 import Model.Link (Link, LinkId)
-import Model.Link as Link
 import Web.Event.Event (Event)
 
 type Message = Void
@@ -48,14 +46,3 @@ initialState =
   , isInitModalOpen: false
   , dataDir: ""
   }
-
-metaToLink :: Meta -> Effect Link
-metaToLink { url, title, image } = do
-  id <- Link.newLinkId
-  pure
-    { id
-    , url
-    , title: fromMaybe "" title
-    , image
-    , tags: []
-    }

@@ -7,7 +7,7 @@ import Fuji.Prelude
 import Api as Api
 import App.Eval as Eval
 import App.Render.InitModal as InitModal
-import App.Types (Action(..), DSL, HTML, Message, Query, State, _linkPane, initialState, metaToLink)
+import App.Types (Action(..), DSL, HTML, Message, Query, State, _linkPane, initialState)
 import Component.LinkPane as LinkPane
 import Data.Array as Array
 import Data.Monoid as Monoid
@@ -18,7 +18,7 @@ import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
 import Model.Link (Link)
-import Model.LinkDetail as LinkDetail
+import Model.Link as Link
 import Nonbili.Halogen as NbH
 import Web.Event.Event as Event
 
@@ -96,12 +96,12 @@ handleAction = case _ of
     H.liftEffect $ Event.preventDefault event
     state <- H.get
     H.liftAff (Api.getMeta state.url) >>= traverse_ \meta -> do
-      link <- H.liftEffect $ metaToLink meta
+      link <- H.liftEffect $ Link.metaToLink meta
       H.modify_ \s -> s
         { links = Array.cons link s.links
         , url = ""
         }
-      Eval.save
+      Eval.saveLink link
 
   OnValueChange url -> do
     H.modify_ $ _ { url = url }
@@ -128,12 +128,7 @@ handleAction = case _ of
             newLinks = fromMaybe state.links $
               Array.updateAt index link state.links
           H.modify_ $ _ { links = newLinks }
-          Eval.save
+          Eval.saveLink link
 
       LinkPane.MsgDelete link -> do
-        H.modify_ $ _
-          { links = Array.delete link state.links
-          , selectedLinkIds = []
-          }
-        Eval.save
-        liftAff $ LinkDetail.delete link.id
+        Eval.deleteLink link

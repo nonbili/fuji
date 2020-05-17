@@ -1,5 +1,6 @@
 module FFI.Tauri
   ( FileName(..)
+  , readLinks
   , getDataDir
   , setDataDir
   , readFile
@@ -21,6 +22,10 @@ getDataDir ::Aff String
 getDataDir = Promise.toAffE getDataDir_
 
 foreign import setDataDir :: String -> Effect Unit
+
+foreign import readLinks_ :: String -> Effect (Promise (Array String))
+readLinks :: FileName -> Aff (Array String)
+readLinks (FileName fn)= Promise.toAffE $ readLinks_ fn
 
 foreign import readFile_ :: String -> Effect (Promise String)
 readFile :: FileName -> Aff String
