@@ -25,6 +25,8 @@ derive newtype instance ordTimestamp :: Ord Timestamp
 
 instance showTimestamp :: Show Timestamp where
   show (Timestamp instant) =
+    -- `Int.ceil` doesn't work because PureScript Int is 32-bit, and timestamp
+    -- number is larger than that.
     String.takeWhile (_ /= String.codePointFromChar '.') $
       show $ unwrap $ Instant.unInstant instant
 
