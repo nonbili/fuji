@@ -2,9 +2,8 @@ module Model.LinkDetail
   ( LinkDetail
   , Note
   , NoteId
-  , NoteContent(..)
   , formatNoteId
-  , newTextNote
+  , newNote
   , load
   , save
   , delete
@@ -43,19 +42,8 @@ derive newtype instance decodeJsonNoteId :: DecodeJson NoteId
 
 type Note =
   { id :: NoteId
-  , content :: NoteContent
+  , content :: String
   }
-
-data NoteContent
-  = NoteText String
-
-derive instance genericNoteContent :: Generic NoteContent _
-
-instance encodeJsonNoteContent :: EncodeJson NoteContent where
-  encodeJson = genericEncodeJson
-
-instance decodeJsonNoteContent :: DecodeJson NoteContent where
-  decodeJson = genericDecodeJson
 
 newNoteId :: Effect NoteId
 newNoteId = NoteId <$> Timestamp.newTimestamp
@@ -63,12 +51,12 @@ newNoteId = NoteId <$> Timestamp.newTimestamp
 formatNoteId :: NoteId -> String
 formatNoteId (NoteId ts) = Timestamp.formatTimestamp ts
 
-newTextNote :: String -> Effect Note
-newTextNote text = do
+newNote :: String -> Effect Note
+newNote content = do
   id <- newNoteId
   pure
     { id
-    , content: NoteText text
+    , content
     }
 
 getFileName :: LinkId -> FileName

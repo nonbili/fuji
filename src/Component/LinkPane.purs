@@ -290,7 +290,7 @@ handleAction = case _ of
   OnAddTextNote -> do
     state <- H.get
     for_ state.detail \detail -> do
-      note <- liftEffect $ LinkDetail.newTextNote state.textNote
+      note <- liftEffect $ LinkDetail.newNote state.textNote
       let
         newDetail = detail
           { notes = Array.snoc detail.notes note
@@ -310,9 +310,8 @@ handleAction = case _ of
         let
           newDetail = detail
             { notes = fromMaybe detail.notes $
-                Array.modifyAt index (\note -> case note.content of
-                  LinkDetail.NoteText _ -> note
-                    { content = LinkDetail.NoteText text }
+                Array.modifyAt index (\note -> note
+                  { content = text }
                 ) detail.notes
             }
         H.modify_ $ _

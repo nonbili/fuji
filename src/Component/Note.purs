@@ -53,55 +53,54 @@ initialState note =
 inputRef = H.RefLabel "textarea" :: H.RefLabel
 
 render :: State -> HTML
-render state@{ note } = case note.content of
-  LinkDetail.NoteText text ->
-    HH.div
-    [ class_ "border-b px-3 py-2"]
-    [ if state.editing
-      then
-        HH.div_
-        [ HH.textarea
-          [ class_ "Input resize-none"
-          , style "height: 80px"
-          , HP.value state.text
-          , HP.ref inputRef
-          , HE.onValueInput $ Just <<< OnTextInput
-          ]
-        , HH.div
-          [ class_ "flex justify-between"]
-          [ HH.div_
-            [ HH.button
-              [ class_ "Btn-primary"
-              , HE.onClick $ Just <<< const OnClickSave
-              ]
-              [ HH.text "Save"]
-            , HH.button
-              [ class_ "ml-2 Btn-normal"
-              , HE.onClick $ Just <<< const OnClickCancel
-              ]
-              [ HH.text "Cancel"]
+render state@{ note } =
+  HH.div
+  [ class_ "border-b px-3 py-2"]
+  [ if state.editing
+    then
+      HH.div_
+      [ HH.textarea
+        [ class_ "Input resize-none"
+        , style "height: 80px"
+        , HP.value state.text
+        , HP.ref inputRef
+        , HE.onValueInput $ Just <<< OnTextInput
+        ]
+      , HH.div
+        [ class_ "flex justify-between"]
+        [ HH.div_
+          [ HH.button
+            [ class_ "Btn-primary"
+            , HE.onClick $ Just <<< const OnClickSave
             ]
+            [ HH.text "Save"]
           , HH.button
-            [ class_ "Btn-danger"
-            , HE.onClick $ Just <<< const OnClickDelete
+            [ class_ "ml-2 Btn-normal"
+            , HE.onClick $ Just <<< const OnClickCancel
             ]
-            [ HH.text "Delete"]
+            [ HH.text "Cancel"]
           ]
-        ]
-      else
-        HH.div
-        [ class_ "relative group break-all whitespace-pre-wrap"]
-        [ HH.text text
         , HH.button
-          [ class_ "absolute top-0 right-0 hidden group-hover:block Btn-secondary"
-          , HE.onClick $ Just <<< const (OnClickEdit text)
+          [ class_ "Btn-danger"
+          , HE.onClick $ Just <<< const OnClickDelete
           ]
-          [ HH.text "Edit"]
+          [ HH.text "Delete"]
         ]
-    , HH.div
-      [ class_ "text-xs text-gray-600 mt-1 text-right"]
-      [ HH.text $ LinkDetail.formatNoteId note.id ]
-    ]
+      ]
+    else
+      HH.div
+      [ class_ "relative group break-all whitespace-pre-wrap"]
+      [ HH.text note.content
+      , HH.button
+        [ class_ "absolute top-0 right-0 hidden group-hover:block Btn-secondary"
+        , HE.onClick $ Just <<< const (OnClickEdit note.content)
+        ]
+        [ HH.text "Edit"]
+      ]
+  , HH.div
+    [ class_ "text-xs text-gray-600 mt-1 text-right"]
+    [ HH.text $ LinkDetail.formatNoteId note.id ]
+  ]
 
 component :: H.Component HH.HTML Query Props Message Aff
 component = H.mkComponent
