@@ -20,6 +20,6 @@ appRoute =
     ]
 
 showRoute :: AppRoute -> String
-showRoute = case _ of
+showRoute x = "#" <> case x of
   RouteHome -> "/"
-  RouteTag tag -> "#/tags/" <> tag
+  RouteTag tag -> "/tags/" <> tag

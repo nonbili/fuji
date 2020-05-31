@@ -7,11 +7,13 @@ import Fuji.Prelude
 import Api as Api
 import App.Eval as Eval
 import App.Render.InitModal as InitModal
+import App.Render.Navbar as Navbar
 import App.Route (AppRoute(..), appRoute)
 import App.Types (Action(..), DSL, HTML, Message, Query, State, _linkPane, initialState)
 import Component.LinkPane as LinkPane
 import Data.Array as Array
 import Data.Monoid as Monoid
+import Data.String as String
 import Effect.Exception as E
 import FFI.Tauri as Tauri
 import Halogen as H
@@ -40,38 +42,53 @@ renderLink state link =
 render :: State -> HTML
 render state =
   HH.div
-  [ class_ "flex flex-col h-screen"
+  [ class_ "flex h-screen"
   ]
-  [ HH.form
-    [ class_ "bg-blue-200 py-2 px-4"
-    , HE.onSubmit $ Just <<< OnSubmit
-    ]
-    [ HH.input
-      [ class_ "py-1 px-2 rounded w-1/3 border-none"
-      , HP.value state.url
-      , HP.required true
-      , HP.placeholder "Save a link https://any.url"
-      , NbH.attr "onfocus" "setTimeout(() => this.select())"
-      , HE.onValueChange $ Just <<< OnValueChange
-      ]
-    , HH.button
-      [ class_ "hidden"
-      , HP.type_ HP.ButtonSubmit
-      ]
-      [ HH.text "Add"]
-    ]
+  [ Navbar.render state
   , HH.div
-    [ class_ "flex-1 flex min-h-0"
+    [ class_ "flex flex-col flex-1"
     ]
-    [ HH.div
-      [ class_ "flex-1 p-4 flex flex-wrap content-start min-w-0 overflow-y-auto"
-      ] $ map (renderLink state) showingLinks
-    , HH.div
-      [ class_ "border-l h-full min-h-0 overflow-y-auto"
-      , style "width: 24rem"
+    [ HH.form
+      [ class_ "bg-blue-200 py-2 px-4"
+      , HE.onSubmit $ Just <<< OnSubmit
       ]
-      [ HH.slot _linkPane unit LinkPane.component selectedLinks $
-          Just <<< HandleLinkPane
+      [ HH.input
+        [ class_ "py-1 px-2 rounded w-1/3 border-none"
+        , HP.value state.url
+        , HP.required true
+        , HP.placeholder "Save a link https://any.url"
+        , NbH.attr "onfocus" "setTimeout(() => this.select())"
+        , HE.onValueChange $ Just <<< OnValueChange
+        ]
+      , HH.button
+        [ class_ "hidden"
+        , HP.type_ HP.ButtonSubmit
+        ]
+        [ HH.text "Add"]
+      ]
+    , HH.div
+      [ class_ "flex-1 flex min-h-0"
+      ]
+      [ HH.div
+        [ class_ "flex-1 p-4 min-w-0 overflow-y-auto"
+        ]
+        [ NbH.unless (String.null state.tag) \\
+            HH.h1
+            [ class_ "mb-4"]
+            [ HH.text "🔖"
+            , HH.text state.tag
+            ]
+        , HH.div
+          [ class_ "flex flex-wrap content-start"
+          ] $ map (renderLink state) showingLinks
+        ]
+      , HH.div
+        [ class_ "border-l h-full min-h-0 overflow-y-auto"
+        , style "width: 24rem"
+        ]
+        [ HH.slot _linkPane unit LinkPane.component selectedLinks $
+            Just <<< HandleLinkPane
+        ]
       ]
     ]
   , NbH.when state.isInitModalOpen \\ InitModal.render state
@@ -106,7 +123,11 @@ handleAction = case _ of
       pure mempty
 
   OnRouteChange route -> case route of
-    RouteHome -> pure unit
+    RouteHome ->
+      H.modify_ $ _
+        { tag = ""
+        , showingLinkIds = []
+        }
     RouteTag tag -> do
       H.modify_ $ \s -> s
         { tag = tag
