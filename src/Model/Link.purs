@@ -13,7 +13,7 @@ import Fuji.Prelude
 
 import Api (Meta)
 import Data.Argonaut.Decode (class DecodeJson, decodeJson)
-import Data.Argonaut.Encode (class EncodeJson, encodeJson)
+import Data.Argonaut.Encode (class EncodeJson)
 import Data.Argonaut.Parser (jsonParser)
 import Effect.Aff as Aff
 import FFI.Tauri (FileName(..))
@@ -77,7 +77,7 @@ loadAll = do
 
 save :: Link -> Aff Unit
 save link = do
-  liftEffect $ Tauri.writeJson (getFileName link.id) $ encodeJson link
+  liftEffect $ Tauri.writeJson (getFileName link.id) link
 
 delete :: LinkId -> Aff Unit
 delete id = do

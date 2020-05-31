@@ -11,10 +11,8 @@ module Model.LinkDetail
 
 import Fuji.Prelude
 
-import Data.Argonaut.Decode (class DecodeJson, decodeJson)
-import Data.Argonaut.Encode (class EncodeJson, encodeJson)
-import Data.Argonaut.Parser (jsonParser)
-import Effect.Aff as Aff
+import Data.Argonaut.Decode (class DecodeJson)
+import Data.Argonaut.Encode (class EncodeJson)
 import FFI.Tauri (FileName(..))
 import FFI.Tauri as Tauri
 import Model.Link (LinkId)
@@ -61,10 +59,8 @@ getFileName linkId = FileName $ "notes/" <> show linkId <> ".json"
 
 load :: LinkId -> Aff (Either String LinkDetail)
 load id = do
-  Aff.attempt (Tauri.readFile $ getFileName id) >>= case _ of
-    Left _ -> pure $ Right initialDetail
-    Right contents -> do
-      pure $ decodeJson =<< jsonParser contents
+  ex <- Tauri.readJson $ getFileName id
+  pure $ either (const (Right initialDetail)) Right ex
   where
   initialDetail =
     { version: currentVersion
@@ -74,7 +70,7 @@ load id = do
 
 save :: LinkDetail -> Aff Unit
 save detail = do
-  liftEffect $ Tauri.writeJson (getFileName detail.id) $ encodeJson
+  liftEffect $ Tauri.writeJson (getFileName detail.id)
     { version: currentVersion
     , id: detail.id
     , notes: detail.notes
