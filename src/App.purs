@@ -7,6 +7,7 @@ import Fuji.Prelude
 import Api as Api
 import App.Eval as Eval
 import App.Render.InitModal as InitModal
+import App.Route (AppRoute(..), appRoute)
 import App.Types (Action(..), DSL, HTML, Message, Query, State, _linkPane, initialState)
 import Component.LinkPane as LinkPane
 import Data.Array as Array
@@ -17,9 +18,11 @@ import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
 import Halogen.HTML.Properties as HP
+import Halogen.Query.EventSource as ES
 import Model.Link (Link)
 import Model.Link as Link
 import Nonbili.Halogen as NbH
+import Routing.Hash as R
 import Web.Event.Event as Event
 
 renderLink :: State -> Link -> HTML
@@ -62,7 +65,7 @@ render state =
     ]
     [ HH.div
       [ class_ "flex-1 p-4 flex flex-wrap content-start min-w-0 overflow-y-auto"
-      ] $ map (renderLink state) state.links
+      ] $ map (renderLink state) showingLinks
     , HH.div
       [ class_ "border-l h-full min-h-0 overflow-y-auto"
       , style "width: 24rem"
@@ -74,6 +77,12 @@ render state =
   , NbH.when state.isInitModalOpen \\ InitModal.render state
   ]
   where
+  showingLinks =
+    if Array.null state.showingLinkIds
+    then state.links
+    else
+      state.links # Array.filter \link ->
+        Array.elem link.id state.showingLinkIds
   selectedLinks = state.links # Array.filter \link ->
     Array.elem link.id state.selectedLinkIds
 
@@ -91,6 +100,20 @@ handleAction :: Action -> DSL Unit
 handleAction = case _ of
   Init -> do
     Eval.init
+    void $ H.subscribe $ ES.effectEventSource \emitter -> do
+      void $ R.matches appRoute \_ next -> do
+        ES.emit emitter (OnRouteChange next)
+      pure mempty
+
+  OnRouteChange route -> case route of
+    RouteHome -> pure unit
+    RouteTag tag -> do
+      H.modify_ $ \s -> s
+        { tag = tag
+        , showingLinkIds = _.id <$>
+            (s.links # Array.filter \link ->
+              Array.elem tag link.tags)
+        }
 
   OnSubmit event -> do
     H.liftEffect $ Event.preventDefault event

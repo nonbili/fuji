@@ -8,6 +8,7 @@
   , "nonbili-dom"
   , "nonbili-halogen"
   , "now"
+  , "routing"
   , "template-literals"
   ]
 , packages = ./packages.dhall

@@ -7,6 +7,8 @@ module Component.LinkPane
 
 import Fuji.Prelude
 
+import App.Route (AppRoute(..))
+import App.Route as Route
 import Component.Note as Note
 import Data.Array as Array
 import Data.String as String
@@ -171,11 +173,12 @@ renderLink state link =
           ]
           [ HH.text link.url]
         ]
-      , HH.ul
+      , HH.div
         [ class_ "flex flex-wrap mt-3"
         ] $ link.tags <#> \tag ->
-          HH.li
-          [ class_ "mr-2 mb-2 bg-blue-100 text-blue-500 text-sm px-2"
+          HH.a
+          [ class_ "mr-2 mb-2 bg-blue-100 text-blue-500 text-sm px-2 no-underline"
+          , HP.href $ Route.showRoute $ RouteTag tag
           , style "line-height: 1.25rem"
           ]
           [ HH.text tag]

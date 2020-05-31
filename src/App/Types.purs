@@ -2,6 +2,7 @@ module App.Types where
 
 import Fuji.Prelude
 
+import App.Route (AppRoute)
 import Component.LinkPane as LinkPane
 import Halogen as H
 import Model.Link (Link, LinkId)
@@ -13,6 +14,7 @@ type Query = Const Void
 
 data Action
   = Init
+  | OnRouteChange AppRoute
   | OnSubmit Event
   | OnValueChange String
   | OnSelectLink Link
@@ -33,16 +35,20 @@ type DSL = H.HalogenM State Action Slot Message Aff
 type State =
   { url :: String
   , links :: Array Link
+  , showingLinkIds :: Array LinkId
   , selectedLinkIds :: Array LinkId
   , isInitModalOpen :: Boolean
   , dataDir :: String
+  , tag :: String
   }
 
 initialState :: State
 initialState =
   { url: ""
   , links: []
+  , showingLinkIds: []
   , selectedLinkIds: []
   , isInitModalOpen: false
   , dataDir: ""
+  , tag: ""
   }
