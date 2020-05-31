@@ -6,15 +6,19 @@
   "author": "Nonbili",
   "license": "BSD-3-Clause",
   "scripts": {
-    "build": "spago bundle-module -m Main -t output/Main/index.js -u '+RTS -N2 -RTS' && parcel build --no-source-maps index.html && tauri build",
+    "build": "./build.sh",
+    "build:css": "tailwind build src/main.css -o dist/main.css",
+    "dev": "./dev.sh",
     "pscid:build": "spago build",
-    "start": "parcel index.html",
+    "start": "node dev.js",
     "start:ps": "spago build -w",
     "tauri": "tauri dev"
   },
   "devDependencies": {
     "cssnano": "^4.1.10",
+    "estrella": "^1.0.9",
+    "serve-http": "^1.0.6",
     "tailwindcss": "^1.4.5",
-    "tauri": "^0.5.2"
+    "tauri": "^0.6.2"
   }
 }

@@ -175,7 +175,7 @@ renderLink state link =
         [ class_ "flex flex-wrap mt-3"
         ] $ link.tags <#> \tag ->
           HH.li
-          [ class_ "mr-2 bg-blue-100 text-blue-500 text-sm px-2"
+          [ class_ "mr-2 mb-2 bg-blue-100 text-blue-500 text-sm px-2"
           , style "line-height: 1.25rem"
           ]
           [ HH.text tag]

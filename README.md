@@ -20,7 +20,6 @@ Fuji is written in PureScript Halogen, [tauri](https://github.com/tauri-apps/tau
 Prerequisites
 
 - yarn or npm
-- parcel
 - spago
 - cargo
 
@@ -28,6 +27,7 @@ Prerequisites
 git clone https://github.com/nonbili/fuji
 cd fuji
 cargo install tauri-bundler
+yarn
 yarn build
 ```
 
@@ -40,7 +40,7 @@ git clone https://github.com/nonbili/fuji
 cd fuji
 yarn
 yarn start:ps
-yarn start
+yarn dev
 ```
 
 Open `http://localhost:1234` in Firefox or Chrome. To run inside tauri, run `yarn tauri`.
