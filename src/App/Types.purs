@@ -8,6 +8,8 @@ import Halogen as H
 import Model.Link (Link, LinkId)
 import Model.Settings (Settings)
 import Model.Settings as Settings
+import Model.Tag (Tag)
+import Model.Tag as Tag
 import Web.Event.Event (Event)
 
 type Message = Void
@@ -42,7 +44,7 @@ type State =
   , selectedLinkIds :: Array LinkId
   , isInitModalOpen :: Boolean
   , dataDir :: String
-  , tag :: String
+  , tag :: Tag
   , settings :: Settings
   }
 
@@ -54,6 +56,6 @@ initialState =
   , selectedLinkIds: []
   , isInitModalOpen: false
   , dataDir: ""
-  , tag: ""
+  , tag: Tag.empty
   , settings: Settings.initialSettings
   }

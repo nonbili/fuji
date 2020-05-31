@@ -11,6 +11,8 @@ import App.Route (AppRoute(..))
 import App.Route as Route
 import Component.Note as Note
 import Data.Array as Array
+import Data.Foldable (intercalate)
+import Data.Set as Set
 import Data.String as String
 import Data.String.Regex as Regex
 import Data.String.Regex.Flags as RF
@@ -23,6 +25,8 @@ import Model.Link (Link)
 import Model.Link as Link
 import Model.LinkDetail (LinkDetail)
 import Model.LinkDetail as LinkDetail
+import Model.Tag (Tag(..))
+import Model.Tag as Tag
 import Nonbili.DOM as NbDom
 import Nonbili.Halogen as NbH
 import Web.Event.Event as Event
@@ -175,13 +179,13 @@ renderLink state link =
         ]
       , HH.div
         [ class_ "flex flex-wrap mt-3"
-        ] $ link.tags <#> \tag ->
+        ] $ (Array.fromFoldable link.tags) <#> \tag ->
           HH.a
           [ class_ "mr-2 mb-2 bg-blue-100 text-blue-500 text-sm px-2 no-underline"
           , HP.href $ Route.showRoute $ RouteTag tag
           , style "line-height: 1.25rem"
           ]
-          [ HH.text tag]
+          [ HH.text $ Tag.toString tag]
       ]
 
   , NbH.unless state.editingLink \\
@@ -290,7 +294,8 @@ handleAction = case _ of
         , editingLinkTitle = link.title
         , editingLinkUrl = link.url
         , editingLinkImage = fromMaybe "" link.image
-        , editingLinkTags = String.joinWith " " link.tags
+        , editingLinkTags =
+            String.joinWith " " $ Tag.toString <$> Array.fromFoldable link.tags
         }
 
   OnSubmitEditLink event -> do
@@ -303,7 +308,8 @@ handleAction = case _ of
         { title = state.editingLinkTitle
         , url = state.editingLinkUrl
         , image = Just state.editingLinkImage
-        , tags = Regex.split re state.editingLinkTags
+        , tags = Set.fromFoldable $ map Tag $
+                 Regex.split re state.editingLinkTags
         }
     H.modify_ $ _ { editingLink = false }
 

@@ -15,9 +15,12 @@ import Api (Meta)
 import Data.Argonaut.Decode (class DecodeJson, decodeJson)
 import Data.Argonaut.Encode (class EncodeJson)
 import Data.Argonaut.Parser (jsonParser)
+import Data.Set (Set)
+import Data.Set as Set
 import Effect.Aff as Aff
 import FFI.Tauri (FileName(..))
 import FFI.Tauri as Tauri
+import Model.Tag (Tag)
 import Model.Timestamp (Timestamp)
 import Model.Timestamp as Timestamp
 import Nonbili.Logger (logError)
@@ -45,7 +48,7 @@ type Link =
   , url :: String
   , title :: String
   , image :: Maybe String
-  , tags :: Array String
+  , tags :: Set Tag
   }
 
 metaToLink :: Meta -> Effect Link
@@ -57,7 +60,7 @@ metaToLink { url, title, image } = do
     , url
     , title: fromMaybe "" title
     , image
-    , tags: []
+    , tags: Set.empty
     }
 
 dir :: FileName

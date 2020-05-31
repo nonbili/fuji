@@ -9,9 +9,9 @@ import App.Route as Route
 import App.Types (HTML, State)
 import Data.Array as Array
 import Data.Set as Set
-import Data.String as String
 import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
+import Model.Tag as Tag
 import Nonbili.Halogen as NbH
 
 render :: State -> HTML
@@ -21,7 +21,7 @@ render state@{ settings } =
   [ HH.div
     []
     [ HH.a
-      [ class_ $ if String.null state.tag then activeCls else itemCls
+      [ class_ $ if Tag.null state.tag then activeCls else itemCls
       , HP.href $ Route.showRoute RouteHome
       ]
       [ HH.text "🏠"]
@@ -31,7 +31,7 @@ render state@{ settings } =
         HH.a
         [ class_ $ if state.tag == tag then activeCls else itemCls
         , HP.href $ Route.showRoute $ RouteTag tag
-        , HP.title tag
+        , HP.title $ Tag.toString tag
         ]
         [ HH.text "🔖"]
     ]
@@ -44,5 +44,5 @@ render state@{ settings } =
   itemCls = "flex items-center justify-center w-10 h-10 no-underline"
   activeCls = itemCls <> " bg-green-500"
   showPlaceholder =
-    String.null state.tag ||
+    Tag.null state.tag ||
     not (Set.member state.tag settings.starredTags)

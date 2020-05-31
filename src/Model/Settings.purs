@@ -7,23 +7,28 @@ module Model.Settings
 
 import Fuji.Prelude
 
+import Data.Map (Map)
+import Data.Map as Map
 import Data.Set (Set)
 import Data.Set as Set
 import FFI.Tauri (FileName(..))
 import FFI.Tauri as Tauri
+import Model.Tag (Tag)
 
 currentVersion :: Int
 currentVersion = 0
 
 type Settings =
   { version :: Int
-  , starredTags :: Set String
+  , starredTags :: Set Tag
+  , tagSymbolMap :: Map Tag String
   }
 
 initialSettings :: Settings
 initialSettings =
   { version: currentVersion
   , starredTags: Set.empty
+  , tagSymbolMap: Map.empty
   }
 
 fileName :: FileName

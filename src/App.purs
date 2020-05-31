@@ -14,7 +14,6 @@ import Component.LinkPane as LinkPane
 import Data.Array as Array
 import Data.Monoid as Monoid
 import Data.Set as Set
-import Data.String as String
 import Effect.Exception as E
 import FFI.Tauri as Tauri
 import Halogen as H
@@ -25,6 +24,7 @@ import Halogen.Query.EventSource as ES
 import Model.Link (Link)
 import Model.Link as Link
 import Model.Settings as Settings
+import Model.Tag as Tag
 import Nonbili.Halogen as NbH
 import Routing.Hash as R
 import Web.Event.Event as Event
@@ -74,13 +74,13 @@ render state =
       [ HH.div
         [ class_ "flex-1 p-4 min-w-0 overflow-y-auto"
         ]
-        [ NbH.unless (String.null state.tag) \\
+        [ NbH.unless (Tag.null state.tag) \\
             HH.div
             [ class_ "flex items-baseline mb-4"]
             [ HH.h1
               [ class_ "mr-5"]
               [ HH.text "🔖"
-              , HH.text state.tag
+              , HH.text $ Tag.toString state.tag
               ]
             , HH.button
               [ class_ $ "Btn cursor-pointer " <>
@@ -117,7 +117,7 @@ render state =
   selectedLinks = state.links # Array.filter \link ->
     Array.elem link.id state.selectedLinkIds
   starred =
-    if String.null state.tag
+    if Tag.null state.tag
       then false
       else Set.member state.tag state.settings.starredTags
 
@@ -143,7 +143,7 @@ handleAction = case _ of
   OnRouteChange route -> case route of
     RouteHome ->
       H.modify_ $ _
-        { tag = ""
+        { tag = Tag.empty
         , showingLinkIds = []
         }
     RouteTag tag -> do
