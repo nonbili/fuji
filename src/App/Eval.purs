@@ -11,6 +11,7 @@ import Halogen as H
 import Model.Link (Link)
 import Model.Link as Link
 import Model.LinkDetail as LinkDetail
+import Model.Settings as Settings
 
 init :: DSL Unit
 init = do
@@ -20,11 +21,13 @@ init = do
 
 load :: DSL Unit
 load = do
-  liftAff Link.loadAll >>= traverse_ \links ->
-    H.modify_ $ _
-      { links = links # Array.sortBy \x1 x2 ->
-          Ord.invert $ compare x1.id x2.id
-      }
+  liftAff Link.loadAll >>= traverse_ \links -> do
+    liftAff Settings.load >>= traverse_ \settings -> do
+      H.modify_ $ _
+        { links = links # Array.sortBy \x1 x2 ->
+            Ord.invert $ compare x1.id x2.id
+        , settings = settings
+        }
 
 saveLink :: Link -> DSL Unit
 saveLink link = do

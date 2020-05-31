@@ -13,6 +13,7 @@ import App.Types (Action(..), DSL, HTML, Message, Query, State, _linkPane, initi
 import Component.LinkPane as LinkPane
 import Data.Array as Array
 import Data.Monoid as Monoid
+import Data.Set as Set
 import Data.String as String
 import Effect.Exception as E
 import FFI.Tauri as Tauri
@@ -23,6 +24,7 @@ import Halogen.HTML.Properties as HP
 import Halogen.Query.EventSource as ES
 import Model.Link (Link)
 import Model.Link as Link
+import Model.Settings as Settings
 import Nonbili.Halogen as NbH
 import Routing.Hash as R
 import Web.Event.Event as Event
@@ -73,10 +75,22 @@ render state =
         [ class_ "flex-1 p-4 min-w-0 overflow-y-auto"
         ]
         [ NbH.unless (String.null state.tag) \\
-            HH.h1
-            [ class_ "mb-4"]
-            [ HH.text "🔖"
-            , HH.text state.tag
+            HH.div
+            [ class_ "flex items-baseline mb-4"]
+            [ HH.h1
+              [ class_ "mr-5"]
+              [ HH.text "🔖"
+              , HH.text state.tag
+              ]
+            , HH.button
+              [ class_ $ "Btn cursor-pointer " <>
+                  if starred
+                  then "bg-yellow-500 text-white"
+                  else "bg-transparent border border-yellow-600 text-yellow-600"
+              , HE.onClick $ Just <<< const (OnToggleStarTag $ not starred)
+              ]
+              [ HH.text $ if starred then "Starring" else "+ Star"
+              ]
             ]
         , HH.div
           [ class_ "flex flex-wrap content-start"
@@ -102,6 +116,10 @@ render state =
         Array.elem link.id state.showingLinkIds
   selectedLinks = state.links # Array.filter \link ->
     Array.elem link.id state.selectedLinkIds
+  starred =
+    if String.null state.tag
+      then false
+      else Set.member state.tag state.settings.starredTags
 
 app :: H.Component HH.HTML Query Unit Message Aff
 app = H.mkComponent
@@ -162,6 +180,18 @@ handleAction = case _ of
     void $ liftEffect $ E.try $ Tauri.setDataDir state.dataDir
     Eval.load
     H.modify_ $ _ { isInitModalOpen = false }
+
+  OnToggleStarTag star -> do
+    { settings, tag } <- H.get
+    let
+      action = if star then Set.insert else Set.delete
+      newSettings = settings
+        { starredTags = action tag settings.starredTags
+        }
+    H.modify_ $ _
+      { settings = newSettings
+      }
+    liftAff $ Settings.save newSettings
 
   HandleLinkPane msg -> do
     state <- H.get

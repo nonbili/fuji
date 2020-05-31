@@ -6,6 +6,8 @@ import App.Route (AppRoute)
 import Component.LinkPane as LinkPane
 import Halogen as H
 import Model.Link (Link, LinkId)
+import Model.Settings (Settings)
+import Model.Settings as Settings
 import Web.Event.Event (Event)
 
 type Message = Void
@@ -20,6 +22,7 @@ data Action
   | OnSelectLink Link
   | OnClickOpenDialog
   | OnSubmitInitModal
+  | OnToggleStarTag Boolean
   | HandleLinkPane LinkPane.Message
 
 type Slot =
@@ -40,6 +43,7 @@ type State =
   , isInitModalOpen :: Boolean
   , dataDir :: String
   , tag :: String
+  , settings :: Settings
   }
 
 initialState :: State
@@ -51,4 +55,5 @@ initialState =
   , isInitModalOpen: false
   , dataDir: ""
   , tag: ""
+  , settings: Settings.initialSettings
   }

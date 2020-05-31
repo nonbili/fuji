@@ -39,7 +39,8 @@ ul {
 }
 
 .Btn {
-  @apply py-1 px-2 cursor-pointer;
+  @apply px-2 cursor-pointer;
+  line-height: 1.5rem;
 }
 
 .Btn-primary {
