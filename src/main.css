@@ -34,6 +34,10 @@ body {
   --primary-color: theme('colors.green.500');
 }
 
+ul {
+  @apply list-none m-0 p-0;
+}
+
 .Btn {
   @apply py-1 px-2 cursor-pointer;
 }

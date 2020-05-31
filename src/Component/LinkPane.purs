@@ -9,6 +9,10 @@ import Fuji.Prelude
 
 import Component.Note as Note
 import Data.Array as Array
+import Data.String as String
+import Data.String.Regex as Regex
+import Data.String.Regex.Flags as RF
+import Data.String.Regex.Unsafe (unsafeRegex)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
@@ -39,6 +43,7 @@ data Action
   | OnChangeLinkTitle String
   | OnChangeLinkUrl String
   | OnChangeLinkImage String
+  | OnChangeLinkTags String
   | OnTextNoteInput String
   | OnAddTextNote
   | HandleNote Int Note.Message
@@ -61,6 +66,7 @@ type State =
   , editingLinkTitle :: String
   , editingLinkUrl :: String
   , editingLinkImage :: String
+  , editingLinkTags :: String
   }
 
 initialState :: Props -> State
@@ -72,6 +78,7 @@ initialState props =
   , editingLinkTitle: ""
   , editingLinkUrl: ""
   , editingLinkImage: ""
+  , editingLinkTags: ""
   }
 
 renderLink :: State -> Link -> HTML
@@ -83,9 +90,9 @@ renderLink state link =
       HH.form
       [ HE.onSubmit $ Just <<< OnSubmitEditLink ]
       [ HH.label
-        [ class_ "block mb-3"]
+        [ class_ controlCls]
         [ HH.div
-          [ class_ "font-medium text-gray-600"]
+          [ class_ labelCls]
           [ HH.text "Title"]
         , HH.input
           [ class_ "Input"
@@ -95,9 +102,9 @@ renderLink state link =
           ]
         ]
       , HH.label
-        [ class_ "block mb-3"]
+        [ class_ controlCls]
         [ HH.div
-          [ class_ "font-medium text-gray-600"]
+          [ class_ labelCls]
           [ HH.text "URL"]
         , HH.input
           [ class_ "Input"
@@ -108,15 +115,26 @@ renderLink state link =
           ]
         ]
       , HH.label
-        [ class_ "block mb-3"]
+        [ class_ controlCls]
         [ HH.div
-          [ class_ "font-medium text-gray-600"]
+          [ class_ labelCls]
           [ HH.text "Image"]
         , HH.input
           [ class_ "Input"
           , HP.value state.editingLinkImage
           , NbH.attr "onfocus" "setTimeout(() => this.select())"
           , HE.onValueChange $ Just <<< OnChangeLinkImage
+          ]
+        ]
+      , HH.label
+        [ class_ controlCls]
+        [ HH.div
+          [ class_ labelCls]
+          [ HH.text "Tags"]
+        , HH.input
+          [ class_ "Input"
+          , HP.value state.editingLinkTags
+          , HE.onValueChange $ Just <<< OnChangeLinkTags
           ]
         ]
       , HH.div
@@ -153,6 +171,14 @@ renderLink state link =
           ]
           [ HH.text link.url]
         ]
+      , HH.ul
+        [ class_ "flex flex-wrap mt-3"
+        ] $ link.tags <#> \tag ->
+          HH.li
+          [ class_ "mr-2 bg-blue-100 text-blue-500 text-sm px-2"
+          , style "line-height: 1.25rem"
+          ]
+          [ HH.text tag]
       ]
 
   , NbH.unless state.editingLink \\
@@ -162,13 +188,16 @@ renderLink state link =
       ]
       [ HH.text "Edit"]
   , HH.div
-    [ class_ "text-right mt-1 text-xs text-gray-600"]
+    [ class_ "text-right mt-4 text-xs text-gray-600"]
     [ HH.span
       [ class_ "mr-1"]
       [ HH.text "Added on"]
     , HH.text $ Link.formatLinkId link.id
     ]
   ]
+  where
+  controlCls = "block mb-3"
+  labelCls = "font-medium text-gray-600"
 
 renderNote :: Int -> LinkDetail.Note -> HTML
 renderNote index note =
@@ -244,26 +273,34 @@ handleAction = case _ of
         , textNote = ""
         , editingLink = false
         }
-      for_ (Array.head props) \link -> do
-        liftAff (LinkDetail.load link.id) >>= traverse_ \detail ->
-          H.modify_ $ _
-            { detail = Just detail
-            , editingLinkTitle = link.title
-            , editingLinkUrl = link.url
-            , editingLinkImage = fromMaybe "" link.image
-            }
+    for_ (Array.head props) \link -> do
+      liftAff (LinkDetail.load link.id) >>= traverse_ \detail ->
+        H.modify_ $ _
+          { detail = Just detail
+          }
 
   OnClickEditLink -> do
-    H.modify_ $ _ { editingLink = true }
+    state <- H.get
+    for_ (Array.head state.props) \link -> do
+      H.modify_ $ _
+        { editingLink = true
+        , editingLinkTitle = link.title
+        , editingLinkUrl = link.url
+        , editingLinkImage = fromMaybe "" link.image
+        , editingLinkTags = String.joinWith " " link.tags
+        }
 
   OnSubmitEditLink event -> do
     liftEffect $ Event.preventDefault event
     state <- H.get
+    let
+      re = unsafeRegex "\\s" RF.noFlags
     for_ (Array.head state.props) \link -> do
       H.raise $ MsgUpdate link
         { title = state.editingLinkTitle
         , url = state.editingLinkUrl
         , image = Just state.editingLinkImage
+        , tags = Regex.split re state.editingLinkTags
         }
     H.modify_ $ _ { editingLink = false }
 
@@ -283,6 +320,9 @@ handleAction = case _ of
 
   OnChangeLinkImage image -> do
     H.modify_ $ _ { editingLinkImage = image }
+
+  OnChangeLinkTags tags -> do
+    H.modify_ $ _ { editingLinkTags = tags }
 
   OnTextNoteInput textNote -> do
     H.modify_ $ _ { textNote = textNote }
