@@ -12,11 +12,8 @@ module Model.LinkDetail
 import Fuji.Prelude
 
 import Data.Argonaut.Decode (class DecodeJson, decodeJson)
-import Data.Argonaut.Decode.Generic.Rep (genericDecodeJson)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
-import Data.Argonaut.Encode.Generic.Rep (genericEncodeJson)
 import Data.Argonaut.Parser (jsonParser)
-import Data.Generic.Rep (class Generic)
 import Effect.Aff as Aff
 import FFI.Tauri (FileName(..))
 import FFI.Tauri as Tauri

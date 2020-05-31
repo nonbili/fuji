@@ -77,7 +77,7 @@ initialState props =
 renderLink :: State -> Link -> HTML
 renderLink state link =
   HH.div
-  [ class_ "px-3 py-8 border-b" ]
+  [ class_ "px-3 py-8 border-b relative group" ]
   [ if state.editingLink
     then
       HH.form
@@ -141,8 +141,7 @@ renderLink state link =
         ]
       ]
     else
-      HH.div
-      [ class_ "relative group"]
+      HH.div_
       [ HH.h3
         [ class_ "mt-0 mb-1"]
         [ HH.text link.title ]
@@ -154,12 +153,14 @@ renderLink state link =
           ]
           [ HH.text link.url]
         ]
-      , HH.button
-        [ class_ "absolute top-0 right-0 hidden group-hover:block Btn-secondary"
-        , HE.onClick $ Just <<< const OnClickEditLink
-        ]
-        [ HH.text "Edit"]
       ]
+
+  , NbH.unless state.editingLink \\
+      HH.button
+      [ class_ "absolute top-0 right-0 mt-1 mr-1 hidden group-hover:block Btn-secondary"
+      , HE.onClick $ Just <<< const OnClickEditLink
+      ]
+      [ HH.text "Edit"]
   , HH.div
     [ class_ "text-right mt-1 text-xs text-gray-600"]
     [ HH.span

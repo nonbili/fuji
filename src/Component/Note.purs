@@ -55,7 +55,7 @@ inputRef = H.RefLabel "textarea" :: H.RefLabel
 render :: State -> HTML
 render state@{ note } =
   HH.div
-  [ class_ "border-b px-3 py-2"]
+  [ class_ "border-b px-3 py-2 relative group"]
   [ if state.editing
     then
       HH.div_
@@ -89,14 +89,15 @@ render state@{ note } =
       ]
     else
       HH.div
-      [ class_ "relative group break-all whitespace-pre-wrap"]
+      [ class_ "break-all whitespace-pre-wrap"]
       [ HH.text note.content
-      , HH.button
-        [ class_ "absolute top-0 right-0 hidden group-hover:block Btn-secondary"
-        , HE.onClick $ Just <<< const (OnClickEdit note.content)
-        ]
-        [ HH.text "Edit"]
       ]
+  , NbH.unless state.editing \\
+      HH.button
+      [ class_ "absolute top-0 right-0 mt-1 mr-1 hidden group-hover:block Btn-secondary"
+      , HE.onClick $ Just <<< const (OnClickEdit note.content)
+      ]
+      [ HH.text "Edit"]
   , HH.div
     [ class_ "text-xs text-gray-600 mt-1 text-right"]
     [ HH.text $ LinkDetail.formatNoteId note.id ]
