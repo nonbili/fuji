@@ -1,9 +1,11 @@
 name: release
 
 on:
-  release:
-    types:
-      - created
+  push:
+    branches:
+      - master
+    paths:
+      - 'VERSION'
 
 jobs:
   check-build:
