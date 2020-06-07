@@ -11,6 +11,7 @@ import Data.Array as Array
 import Data.Set as Set
 import Halogen.HTML as HH
 import Halogen.HTML.Properties as HP
+import Model.Settings as Settings
 import Model.Tag as Tag
 import Nonbili.Halogen as NbH
 
@@ -33,7 +34,7 @@ render state@{ settings } =
         , HP.href $ Route.showRoute $ RouteTag tag
         , HP.title $ Tag.toString tag
         ]
-        [ HH.text "🔖"]
+        [ HH.text $ Settings.getTagSymbol tag state.settings ]
     ]
   , NbH.when showPlaceholder \\
       HH.a
@@ -44,5 +45,5 @@ render state@{ settings } =
   itemCls = "flex items-center justify-center w-10 h-10 no-underline"
   activeCls = itemCls <> " bg-green-500"
   showPlaceholder =
-    Tag.null state.tag ||
+    not (Tag.null state.tag) &&
     not (Set.member state.tag settings.starredTags)

@@ -1,6 +1,8 @@
 module Model.Settings
   ( Settings
   , initialSettings
+  , getTagSymbol
+  , setTagSymbol
   , load
   , save
   ) where
@@ -33,6 +35,15 @@ initialSettings =
 
 fileName :: FileName
 fileName = FileName "settings.json"
+
+getTagSymbol :: Tag -> Settings -> String
+getTagSymbol tag settings =
+  fromMaybe "🔖" $ Map.lookup tag settings.tagSymbolMap
+
+setTagSymbol :: Tag -> String -> Settings -> Settings
+setTagSymbol tag symbol settings = settings
+  { tagSymbolMap = Map.insert tag symbol settings.tagSymbolMap
+  }
 
 load :: Aff (Either String Settings)
 load = do
