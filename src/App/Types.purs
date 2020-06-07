@@ -20,7 +20,7 @@ type Query = Const Void
 data Action
   = Init
   | OnRouteChange AppRoute
-  | OnSubmit Event
+  | OnSubmitLink Event
   | OnValueChange String
   | OnSelectLink Link
   | OnClickOpenDialog

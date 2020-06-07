@@ -56,7 +56,7 @@ render state =
     ]
     [ HH.form
       [ class_ "bg-blue-200 py-2 px-4"
-      , HE.onSubmit $ Just <<< OnSubmit
+      , HE.onSubmit $ Just <<< OnSubmitLink
       ]
       [ HH.input
         [ class_ "py-1 px-2 rounded w-1/3 border-none"
@@ -130,22 +130,19 @@ handleAction = case _ of
         , showingLinkIds = []
         }
     RouteTag tag -> do
-      H.modify_ $ \s -> s
-        { tag = tag
-        , showingLinkIds = _.id <$>
-            (s.links # Array.filter \link ->
-              Array.elem tag link.tags)
-        }
+      H.modify_ $ _ { tag = tag }
+      Eval.updateShowingLinkIds
 
-  OnSubmit event -> do
+  OnSubmitLink event -> do
     H.liftEffect $ Event.preventDefault event
     state <- H.get
     H.liftAff (Api.getMeta state.url) >>= traverse_ \meta -> do
-      link <- H.liftEffect $ Link.metaToLink meta
+      link <- H.liftEffect $ Link.metaToLink state.tag meta
       H.modify_ \s -> s
         { links = Array.cons link s.links
         , url = ""
         }
+      Eval.updateShowingLinkIds
       Eval.saveLink link
 
   OnValueChange url -> do

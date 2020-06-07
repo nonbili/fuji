@@ -21,6 +21,7 @@ import Effect.Aff as Aff
 import FFI.Tauri (FileName(..))
 import FFI.Tauri as Tauri
 import Model.Tag (Tag)
+import Model.Tag as Tag
 import Model.Timestamp (Timestamp)
 import Model.Timestamp as Timestamp
 import Nonbili.Logger (logError)
@@ -51,8 +52,8 @@ type Link =
   , tags :: Set Tag
   }
 
-metaToLink :: Meta -> Effect Link
-metaToLink { url, title, image } = do
+metaToLink :: Tag -> Meta -> Effect Link
+metaToLink tag { url, title, image } = do
   id <- newLinkId
   pure
     { version: currentVersion
@@ -60,7 +61,7 @@ metaToLink { url, title, image } = do
     , url
     , title: fromMaybe "" title
     , image
-    , tags: Set.empty
+    , tags: if Tag.null tag then Set.empty else Set.singleton tag
     }
 
 dir :: FileName

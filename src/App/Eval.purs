@@ -29,6 +29,14 @@ load = do
         , settings = settings
         }
 
+updateShowingLinkIds :: DSL Unit
+updateShowingLinkIds = do
+  H.modify_ $ \s -> s
+    { showingLinkIds = _.id <$>
+        (s.links # Array.filter \link ->
+          Array.elem s.tag link.tags)
+    }
+
 saveLink :: Link -> DSL Unit
 saveLink link = do
   liftAff $ Link.save link
