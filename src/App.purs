@@ -6,6 +6,7 @@ import Fuji.Prelude
 
 import Api as Api
 import App.Eval as Eval
+import App.Render.CurrentTag as CurrentTag
 import App.Render.InitModal as InitModal
 import App.Render.Navbar as Navbar
 import App.Route (AppRoute(..), appRoute)
@@ -74,24 +75,7 @@ render state =
       [ HH.div
         [ class_ "flex-1 p-4 min-w-0 overflow-y-auto"
         ]
-        [ NbH.unless (Tag.null state.tag) \\
-            HH.div
-            [ class_ "flex items-baseline mb-4"]
-            [ HH.h1
-              [ class_ "mr-5"]
-              [ HH.text "🔖"
-              , HH.text $ Tag.toString state.tag
-              ]
-            , HH.button
-              [ class_ $ "Btn cursor-pointer " <>
-                  if starred
-                  then "bg-yellow-500 text-white"
-                  else "bg-transparent border border-yellow-600 text-yellow-600"
-              , HE.onClick $ Just <<< const (OnToggleStarTag $ not starred)
-              ]
-              [ HH.text $ if starred then "Starring" else "+ Star"
-              ]
-            ]
+        [ CurrentTag.render state
         , HH.div
           [ class_ "flex flex-wrap content-start"
           ] $ map (renderLink state) showingLinks
@@ -116,10 +100,6 @@ render state =
         Array.elem link.id state.showingLinkIds
   selectedLinks = state.links # Array.filter \link ->
     Array.elem link.id state.selectedLinkIds
-  starred =
-    if Tag.null state.tag
-      then false
-      else Set.member state.tag state.settings.starredTags
 
 app :: H.Component HH.HTML Query Unit Message Aff
 app = H.mkComponent
