@@ -10,6 +10,7 @@ import Model.Settings (Settings)
 import Model.Settings as Settings
 import Model.Tag (Tag)
 import Model.Tag as Tag
+import NSelect as Select
 import Web.Event.Event (Event)
 
 type Message = Void
@@ -25,13 +26,18 @@ data Action
   | OnClickOpenDialog
   | OnSubmitInitModal
   | OnToggleStarTag Boolean
+  | OnChangeEmojiSelectSearch String
+  | OnSelectEmoji Event
+  | HandleEmojiSelect (Select.Message Action)
   | HandleLinkPane LinkPane.Message
 
 type Slot =
   ( linkPane :: H.Slot LinkPane.Query LinkPane.Message Unit
+  , emojiSelect :: Select.Slot Action Unit
   )
 
 _linkPane = SProxy :: SProxy "linkPane"
+_emojiSelect = SProxy :: SProxy "emojiSelect"
 
 type HTML = H.ComponentHTML Action Slot Aff
 
@@ -46,6 +52,7 @@ type State =
   , dataDir :: String
   , tag :: Tag
   , settings :: Settings
+  , emojiSelectSearch :: String
   }
 
 initialState :: State
@@ -58,4 +65,5 @@ initialState =
   , dataDir: ""
   , tag: Tag.empty
   , settings: Settings.initialSettings
+  , emojiSelectSearch: ""
   }

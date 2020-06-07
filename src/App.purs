@@ -10,7 +10,7 @@ import App.Render.CurrentTag as CurrentTag
 import App.Render.InitModal as InitModal
 import App.Render.Navbar as Navbar
 import App.Route (AppRoute(..), appRoute)
-import App.Types (Action(..), DSL, HTML, Message, Query, State, _linkPane, initialState)
+import App.Types (Action(..), DSL, HTML, Message, Query, State, _emojiSelect, _linkPane, initialState)
 import Component.LinkPane as LinkPane
 import Data.Array as Array
 import Data.Monoid as Monoid
@@ -26,9 +26,12 @@ import Model.Link (Link)
 import Model.Link as Link
 import Model.Settings as Settings
 import Model.Tag as Tag
+import NSelect as Select
 import Nonbili.Halogen as NbH
 import Routing.Hash as R
 import Web.Event.Event as Event
+import Web.HTML.HTMLElement as HTMLElement
+import Web.HTML.HTMLInputElement as HTMLInputElement
 
 renderLink :: State -> Link -> HTML
 renderLink state link =
@@ -172,6 +175,27 @@ handleAction = case _ of
       { settings = newSettings
       }
     liftAff $ Settings.save newSettings
+
+  OnChangeEmojiSelectSearch value -> do
+    H.modify_ $ _ { emojiSelectSearch = value }
+
+  OnSelectEmoji event -> do
+    for_ (Event.target event >>= HTMLElement.fromEventTarget) \el -> do
+      value <- liftEffect $ HTMLInputElement.value $ unsafeCoerce el
+      state <- H.get
+      let
+        newSettings = Settings.setTagSymbol state.tag value state.settings
+      H.modify_ $ _
+        { settings = newSettings
+        , emojiSelectSearch = ""
+        }
+      liftAff $ Settings.save newSettings
+      H.query _emojiSelect unit $ H.tell Select.Close
+
+  HandleEmojiSelect msg -> do
+    case msg of
+      Select.Emit a -> handleAction a
+      _ -> pure unit
 
   HandleLinkPane msg -> do
     state <- H.get

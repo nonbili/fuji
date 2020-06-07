@@ -4,6 +4,7 @@
   , "argonaut-generic"
   , "effect"
   , "halogen"
+  , "halogen-nselect"
   , "nonbili"
   , "nonbili-dom"
   , "nonbili-halogen"

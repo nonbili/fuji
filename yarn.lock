@@ -31,6 +31,11 @@
     "@nodelib/fs.scandir" "2.1.3"
     fastq "^1.6.0"
 
+"@nonbili/emoji-list@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@nonbili/emoji-list/-/emoji-list-0.1.2.tgz#fd2f43930ef07b0c2ca0e42e22a95488789a71a3"
+  integrity sha512-yQ4xisBzEb21HS+dKaIktQpv3+BNLgXDNT29Ui/oTPBess/4MidIyBorYa3YKUSlATgx3+a4JLycQq9q4Gh8Wg==
+
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.14.0.tgz#9fb3a3cf3132328151f353de4632e01e52102bea"
