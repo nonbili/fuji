@@ -11,7 +11,6 @@ import App.Route (AppRoute(..))
 import App.Route as Route
 import Component.Note as Note
 import Data.Array as Array
-import Data.Foldable (intercalate)
 import Data.Set as Set
 import Data.String as String
 import Data.String.Regex as Regex
@@ -304,11 +303,16 @@ handleAction = case _ of
     let
       re = unsafeRegex "\\s" RF.noFlags
     for_ (Array.head state.props) \link -> do
+      let
+        editingLinkTags = String.trim state.editingLinkTags
       H.raise $ MsgUpdate link
         { title = state.editingLinkTitle
         , url = state.editingLinkUrl
         , image = Just state.editingLinkImage
-        , tags = Set.fromFoldable $ map Tag $
+        , tags =
+            if String.null editingLinkTags
+            then Set.empty
+            else Set.fromFoldable $ map Tag $
                  Regex.split re state.editingLinkTags
         }
     H.modify_ $ _ { editingLink = false }
