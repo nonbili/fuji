@@ -1,9 +1,11 @@
 @tailwind components;
 @tailwind utilities;
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
-  border: 0 solid theme('colors.gray.200');
+  border: 0 solid theme("colors.gray.200");
 }
 
 h1,
@@ -25,13 +27,13 @@ textarea::placeholder {
 
 input:focus,
 textarea:focus {
-  outline-color: theme('colors.green.500');
+  outline-color: theme("colors.green.500");
 }
 
 body {
   @apply text-gray-800 m-0 font-sans;
   line-height: 1.5;
-  --primary-color: theme('colors.green.500');
+  --primary-color: theme("colors.green.500");
 }
 
 ul {
@@ -65,4 +67,26 @@ ul {
 
 .Link {
   @apply text-green-500 no-underline;
+}
+
+.GridItem {
+  @apply w-1/3;
+}
+
+@media (min-width: 1025px) {
+  .GridItem {
+    @apply w-1/4;
+  }
+}
+
+@media (min-width: 1281px) {
+  .GridItem {
+    @apply w-1/5;
+  }
+}
+
+@media (min-width: 1441px) {
+  .GridItem {
+    @apply w-1/6;
+  }
 }

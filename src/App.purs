@@ -35,12 +35,19 @@ import Web.HTML.HTMLInputElement as HTMLInputElement
 
 renderLink :: State -> Link -> HTML
 renderLink state link =
-  HH.img
-  [ class_ $ "object-contain hover:bg-gray-200 cursor-pointer m-2" <>
-      Monoid.guard selected " border-green-500 border-2 py-2"
-  , style "width: 12rem; height: 16rem;"
-  , HP.src $ fromMaybe "" link.image
-  , HE.onClick $ Just <<< const (OnSelectLink link)
+  HH.div
+  [ class_ "relative GridItem"
+  ]
+  [ HH.div
+    [ class_ "relative"
+    , style "padding-top: 133.33%"
+    ]
+    [ HH.img
+      [ class_ $ "absolute inset-0 p-4 w-full h-full object-contain hover:bg-gray-200 cursor-pointer" <> Monoid.guard selected " border-green-500 border-2 py-2"
+      , HP.src $ fromMaybe "" link.image
+      , HE.onClick $ Just <<< const (OnSelectLink link)
+      ]
+    ]
   ]
   where
   selected = Array.elem link.id state.selectedLinkIds
