@@ -96,7 +96,7 @@ render state =
   ]
   where
   showingLinks =
-    if Array.null state.showingLinkIds
+    if Tag.null state.tag
     then state.links
     else
       state.links # Array.filter \link ->
