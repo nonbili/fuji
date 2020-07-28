@@ -77,10 +77,10 @@ jobs:
             buildFolder: bundle/deb
             ext: _0.1.0_amd64.deb
             compressed: ''
-          # - platform: macos-latest
-          #   buildFolder: bundle/osx
-          #   ext: .app
-          #   compressed: .tgz
+          - platform: macos-latest
+            buildFolder: bundle/osx
+            ext: _0.1.0_x64.app
+            compressed: .tgz
           # - platform: windows-latest
           #   buildFolder: ''
           #   ext: .x64.msi
