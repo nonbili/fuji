@@ -32,17 +32,20 @@ export const readFile = file =>
         return data ? Promise.resolve(data) : Promise.reject("");
       })();
 
-const writeFile = (file, contents) =>
+const writeFile = (path, contents) =>
   tauriOn
-    ? TauriFS.writeFile({ file, contents })
-    : Promise.resolve(localStorage.setItem(file, contents));
+    ? TauriFS.writeFile({ path, contents })
+    : Promise.resolve(localStorage.setItem(path, contents));
 
-export const writeJson = (file, obj) =>
-  writeFile(file, JSON.stringify(obj, null, 2));
+export const writeJson = (path, obj) =>
+  writeFile(path, JSON.stringify(obj, null, 2));
 
 export const removeFile = file =>
   tauriOn
-    ? TauriFS.removeFile(file)
+    ? TauriFS.removeFile(file).then(
+        () => {},
+        () => {}
+      )
     : Promise.resolve(localStorage.removeItem(file));
 
 if (tauriOn) {
@@ -67,6 +70,6 @@ export const readConfig = () =>
 export const writeConfig = config => {
   const contents = JSON.stringify(config, null, 2);
   tauriOn
-    ? TauriFS.writeFile({ file: "config.json", contents }, appDirOption)
+    ? TauriFS.writeFile({ path: "config.json", contents }, appDirOption)
     : Promise.resolve(localStorage.setItem("fuji", contents));
 };
