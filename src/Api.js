@@ -1,6 +1,6 @@
 const TauriHttp = require("tauri/api/http").default;
 
-const { parseMeta } = require("../../src/js/meta-proxy");
+const { parseMeta } = require("../../src/js/meta-parser");
 const { tauriOn } = require("../../src/js/tauri");
 
 exports.getMeta_ = url =>

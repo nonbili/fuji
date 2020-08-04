@@ -42,10 +42,11 @@ renderLink state link =
     [ class_ "relative"
     , style "padding-top: 133.33%"
     ]
-    [ HH.img
+    [ HH.img $
       [ class_ $ "absolute inset-0 p-4 w-full h-full object-contain hover:bg-gray-200 cursor-pointer" <> Monoid.guard selected " border-green-500 border-2 py-2"
-      , HP.src $ fromMaybe "" link.image
       , HE.onClick $ Just <<< const (OnSelectLink link)
+      ] <> Monoid.guard (isJust link.image)
+      [ HP.src $ fromMaybe "" link.image
       ]
     ]
   ]
