@@ -22,6 +22,7 @@ Prerequisites
 - yarn or npm
 - spago
 - cargo
+- Development package of openssl, e.g. `libssl-dev` on Ubuntu or `openssl-devel` on Fedora
 
 ```
 git clone https://github.com/nonbili/fuji

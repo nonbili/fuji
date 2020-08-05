@@ -1,5 +1,6 @@
 set -e
 
+rm -rf output
 spago bundle-module -m Main -t output/Main/index.js
 mkdir -p dist
 cp index.html dist
