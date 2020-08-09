@@ -95,8 +95,10 @@ render state =
         [ class_ "border-l h-full min-h-0 overflow-y-auto"
         , style "width: 24rem"
         ]
-        [ HH.slot _linkPane unit LinkPane.component selectedLinks $
-            Just <<< HandleLinkPane
+        [ HH.slot _linkPane unit LinkPane.component
+            { selected: selectedLinks
+            , tags: getAllTags state
+            } $ Just <<< HandleLinkPane
         ]
       ]
     ]
@@ -111,6 +113,9 @@ render state =
         Array.elem link.id state.showingLinkIds
   selectedLinks = state.links # Array.filter \link ->
     Array.elem link.id state.selectedLinkIds
+
+getAllTags :: State -> Set.Set Tag.Tag
+getAllTags state = Set.unions $ Set.fromFoldable $ _.tags <$> state.links
 
 app :: H.Component HH.HTML Query Unit Message Aff
 app = H.mkComponent

@@ -31,7 +31,7 @@ renderSelect state st =
     )
     [ HH.text $ Settings.getTagSymbol state.tag state.settings ]
   , guard st.isOpen $> HH.div
-    [ class_ "absolute p-4 bg-white text-base overflow-y-auto border shadow-xl"
+    [ class_ "absolute p-4 bg-white text-base overflow-y-auto border shadow-xl z-dropdown"
     , style "width: 28.5rem; max-height: 60vh"
     ]
     [ HH.input

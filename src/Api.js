@@ -11,7 +11,7 @@ exports.getMeta_ = url =>
       });
       return parseMeta(html, url);
     } else {
-      const res = await fetch("https://meta-proxy.herokuapp.com?q=${url}");
+      const res = await fetch(`https://meta-proxy.herokuapp.com?q=${url}`);
       return res.json();
     }
   };

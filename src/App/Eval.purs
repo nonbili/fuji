@@ -26,6 +26,7 @@ load = do
       H.modify_ $ _
         { links = links # Array.sortBy \x1 x2 ->
             Ord.invert $ compare x1.id x2.id
+        , selectedLinkIds = _.id <$> Array.take 1 links
         , settings = settings
         }
 

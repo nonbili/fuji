@@ -11,11 +11,13 @@ import App.Route (AppRoute(..))
 import App.Route as Route
 import Component.Note as Note
 import Data.Array as Array
+import Data.Monoid as Monoid
 import Data.Set as Set
 import Data.String as String
 import Data.String.Regex as Regex
 import Data.String.Regex.Flags as RF
 import Data.String.Regex.Unsafe (unsafeRegex)
+import Effect.Aff as Aff
 import FFI.DOM as DOM
 import Halogen as H
 import Halogen.HTML as HH
@@ -27,12 +29,17 @@ import Model.LinkDetail (LinkDetail)
 import Model.LinkDetail as LinkDetail
 import Model.Tag (Tag(..))
 import Model.Tag as Tag
+import NSelect as Select
 import Nonbili.DOM as NbDom
 import Nonbili.Halogen as NbH
+import Nonbili.String as NString
 import Web.Event.Event as Event
 import Web.UIEvent.KeyboardEvent (KeyboardEvent)
 
-type Props = Array Link
+type Props =
+  { selected :: Array Link
+  , tags :: Set.Set Tag
+  }
 
 data Message
   = MsgUpdate Link
@@ -50,17 +57,19 @@ data Action
   | OnChangeLinkTitle String
   | OnChangeLinkUrl String
   | OnChangeLinkImage String
-  | OnChangeLinkTags String
   | OnKeyUpLinkTags KeyboardEvent
   | OnTextNoteInput String
   | OnAddTextNote
   | HandleNote Int Note.Message
+  | HandleTagSelect (Select.Message Action)
 
 type Slot =
   ( note :: H.Slot Note.Query Note.Message LinkDetail.NoteId
+  , tagSelect :: Select.Slot Action Unit
   )
 
 _note = SProxy :: SProxy "note"
+_tagSelect = SProxy :: SProxy "tagSelect"
 
 type HTML = H.ComponentHTML Action Slot Aff
 
@@ -75,6 +84,7 @@ type State =
   , linkUrl :: String
   , linkImage :: String
   , linkTags :: String
+  , tagOptions :: Array Tag
   }
 
 initialState :: Props -> State
@@ -87,7 +97,38 @@ initialState props =
   , linkUrl: ""
   , linkImage: ""
   , linkTags: ""
+  , tagOptions: []
   }
+
+renderTagSelect :: State -> Select.State -> Select.HTML Action () Aff
+renderTagSelect state st =
+  HH.div
+  ( Select.setRootProps [ class_ "relative"]
+  ) $ join
+  [ pure $ HH.input
+    ( Select.setInputProps'
+      { onKeyDown: \e -> OnKeyUpLinkTags e }
+      [ class_ "Input"
+      , HP.value state.linkTags
+      ]
+    )
+  , guard (st.isOpen && Array.length state.tagOptions > 0) $> HH.div
+    [ class_ "absolute bg-white text-base overflow-y-auto border shadow-xl w-full z-dropdown"
+    , style "max-height: 40vh"
+    ]
+    [ HH.ul
+      ( Select.setMenuProps
+        []
+      ) $ state.tagOptions # Array.mapWithIndex \ix (Tag s) ->
+        HH.li
+        ( Select.setItemProps ix
+          [ class_ $ "py-1 px-3 hover:bg-gray-200"
+              <> Monoid.guard (ix == st.highlightedIndex) " bg-gray-200"
+          ]
+        )
+        [ HH.text s ]
+    ]
+  ]
 
 renderLink :: State -> Link -> HTML
 renderLink state link =
@@ -139,12 +180,10 @@ renderLink state link =
         [ HH.div
           [ class_ labelCls]
           [ HH.text "Tags"]
-        , HH.input
-          [ class_ "Input"
-          , HP.value state.linkTags
-          , HE.onValueChange $ Just <<< OnChangeLinkTags
-          , HE.onKeyUp $ Just <<< OnKeyUpLinkTags
-          ]
+        , HH.slot _tagSelect unit Select.component
+            { render: renderTagSelect state
+            , itemCount: Array.length state.tagOptions
+            } $ Just <<< HandleTagSelect
         ]
       , HH.div
         [ class_ "flex justify-between"]
@@ -247,7 +286,7 @@ render :: State -> HTML
 render state =
   HH.div
   [ class_ "pb-8"]
-  [ NbH.fromMaybe (Array.head state.props) \link ->
+  [ NbH.fromMaybe (Array.head state.props.selected) \link ->
      HH.div_
      [ renderLink state link
      , NbH.fromMaybe state.detail renderDetail
@@ -283,7 +322,7 @@ handleAction = case _ of
         , textNote = ""
         , editingLink = false
         }
-    for_ (Array.head props) \link -> do
+    for_ (Array.head props.selected) \link -> do
       liftAff (LinkDetail.load link.id) >>= traverse_ \detail ->
         H.modify_ $ _
           { detail = Just detail
@@ -291,7 +330,7 @@ handleAction = case _ of
 
   OnClickEditLink -> do
     state <- H.get
-    for_ (Array.head state.props) \link -> do
+    for_ (Array.head state.props.selected) \link -> do
       H.modify_ $ _
         { editingLink = true
         , linkTitle = link.title
@@ -306,7 +345,7 @@ handleAction = case _ of
     state <- H.get
     let
       re = unsafeRegex "\\s" RF.noFlags
-    for_ (Array.head state.props) \link -> do
+    for_ (Array.head state.props.selected) \link -> do
       let
         linkTags = String.trim state.linkTags
       H.raise $ MsgUpdate link
@@ -326,7 +365,7 @@ handleAction = case _ of
 
   OnClickDeleteLink -> do
     state <- H.get
-    for_ (Array.head state.props) \link -> do
+    for_ (Array.head state.props.selected) \link -> do
       H.raise $ MsgDelete link
 
   OnChangeLinkTitle title -> do
@@ -338,12 +377,23 @@ handleAction = case _ of
   OnChangeLinkImage image -> do
     H.modify_ $ _ { linkImage = image }
 
-  OnChangeLinkTags tags -> do
-    H.modify_ $ _ { linkTags = tags }
-
   OnKeyUpLinkTags event -> do
-    liftEffect $ DOM.getWordBeforeCursor event >>= traverse_ \word ->
-      traceM word
+    -- TODO: support complete with TAB key.
+
+    liftAff $ Aff.delay $ Aff.Milliseconds 0.0
+    H.query _tagSelect unit (H.request Select.GetInputElement) >>= traverse_ \el -> do
+      liftEffect (DOM.getWordBeforeCursor $ unsafeCoerce el) >>= case _ of
+        Nothing -> H.modify_ $ _ { tagOptions = [] }
+        Just word -> do
+          state <- H.get
+          let
+            pattern = String.Pattern word
+            options = Array.fromFoldable $ state.props.tags # Set.filter \(Tag s) ->
+              NString.startsWith pattern s
+          -- TODO: should filter out existing tags in the input.
+          H.modify_ $ _
+            { tagOptions =
+                if options == [Tag word] then [] else options }
 
   OnTextNoteInput textNote -> do
     H.modify_ $ _ { textNote = textNote }
@@ -393,3 +443,19 @@ handleAction = case _ of
           { detail = Just newDetail
           }
         liftAff $ LinkDetail.save newDetail
+
+  HandleTagSelect msg -> do
+    case msg of
+      Select.Emit a -> handleAction a
+
+      Select.Selected index -> do
+        state <- H.get
+        for_ (Array.index state.tagOptions index) \(Tag s) -> do
+          H.query _tagSelect unit (H.request Select.GetInputElement) >>= traverse_ \el ->
+            liftEffect (DOM.replaceWordBeforeCursor s $ unsafeCoerce el)
+          H.modify_ $ _ { tagOptions = [] }
+
+      Select.InputValueChanged value -> do
+        H.modify_ $ _ { linkTags = value }
+
+      _ -> pure unit

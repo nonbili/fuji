@@ -1,14 +1,17 @@
 module FFI.DOM
   ( getWordBeforeCursor
+  , replaceWordBeforeCursor
   ) where
 
 import Fuji.Prelude
 
 import Data.Nullable (Nullable)
 import Data.Nullable as Nullable
-import Web.UIEvent.KeyboardEvent (KeyboardEvent)
+import Web.HTML (HTMLInputElement)
 
-foreign import getWordBeforeCursor_ :: KeyboardEvent -> Effect (Nullable String)
+foreign import getWordBeforeCursor_ :: HTMLInputElement -> Effect (Nullable String)
 
-getWordBeforeCursor :: KeyboardEvent -> Effect (Maybe String)
-getWordBeforeCursor e = Nullable.toMaybe <$> getWordBeforeCursor_ e
+getWordBeforeCursor :: HTMLInputElement -> Effect (Maybe String)
+getWordBeforeCursor el = Nullable.toMaybe <$> getWordBeforeCursor_ el
+
+foreign import replaceWordBeforeCursor :: String -> HTMLInputElement -> Effect Unit
