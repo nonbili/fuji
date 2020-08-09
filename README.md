@@ -6,12 +6,12 @@
 
 - [x] Save a link with the og:image
 - [x] Add notes to a link
-- [ ] Add tags to a link
+- [x] Add tags to a link
 - [ ] Search saved links
 
 ## Install
 
-Currently only deb package is released on https://github.com/nonbili/fuji/releases.
+Currently deb package and macOS app are released on https://github.com/nonbili/fuji/releases.
 
 ## Build from source
 
