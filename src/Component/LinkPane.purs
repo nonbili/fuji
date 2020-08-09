@@ -16,6 +16,7 @@ import Data.String as String
 import Data.String.Regex as Regex
 import Data.String.Regex.Flags as RF
 import Data.String.Regex.Unsafe (unsafeRegex)
+import FFI.DOM as DOM
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Events as HE
@@ -29,6 +30,7 @@ import Model.Tag as Tag
 import Nonbili.DOM as NbDom
 import Nonbili.Halogen as NbH
 import Web.Event.Event as Event
+import Web.UIEvent.KeyboardEvent (KeyboardEvent)
 
 type Props = Array Link
 
@@ -49,6 +51,7 @@ data Action
   | OnChangeLinkUrl String
   | OnChangeLinkImage String
   | OnChangeLinkTags String
+  | OnKeyUpLinkTags KeyboardEvent
   | OnTextNoteInput String
   | OnAddTextNote
   | HandleNote Int Note.Message
@@ -68,10 +71,10 @@ type State =
   , detail :: Maybe LinkDetail
   , textNote :: String
   , editingLink :: Boolean
-  , editingLinkTitle :: String
-  , editingLinkUrl :: String
-  , editingLinkImage :: String
-  , editingLinkTags :: String
+  , linkTitle :: String
+  , linkUrl :: String
+  , linkImage :: String
+  , linkTags :: String
   }
 
 initialState :: Props -> State
@@ -80,10 +83,10 @@ initialState props =
   , detail: Nothing
   , textNote: ""
   , editingLink: false
-  , editingLinkTitle: ""
-  , editingLinkUrl: ""
-  , editingLinkImage: ""
-  , editingLinkTags: ""
+  , linkTitle: ""
+  , linkUrl: ""
+  , linkImage: ""
+  , linkTags: ""
   }
 
 renderLink :: State -> Link -> HTML
@@ -101,7 +104,7 @@ renderLink state link =
           [ HH.text "Title"]
         , HH.input
           [ class_ "Input"
-          , HP.value state.editingLinkTitle
+          , HP.value state.linkTitle
           , HP.required true
           , HE.onValueChange $ Just <<< OnChangeLinkTitle
           ]
@@ -113,7 +116,7 @@ renderLink state link =
           [ HH.text "URL"]
         , HH.input
           [ class_ "Input"
-          , HP.value state.editingLinkUrl
+          , HP.value state.linkUrl
           , HP.required true
           , NbH.attr "onfocus" "setTimeout(() => this.select())"
           , HE.onValueChange $ Just <<< OnChangeLinkUrl
@@ -126,7 +129,7 @@ renderLink state link =
           [ HH.text "Image"]
         , HH.input
           [ class_ "Input"
-          , HP.value state.editingLinkImage
+          , HP.value state.linkImage
           , NbH.attr "onfocus" "setTimeout(() => this.select())"
           , HE.onValueChange $ Just <<< OnChangeLinkImage
           ]
@@ -138,8 +141,9 @@ renderLink state link =
           [ HH.text "Tags"]
         , HH.input
           [ class_ "Input"
-          , HP.value state.editingLinkTags
+          , HP.value state.linkTags
           , HE.onValueChange $ Just <<< OnChangeLinkTags
+          , HE.onKeyUp $ Just <<< OnKeyUpLinkTags
           ]
         ]
       , HH.div
@@ -290,10 +294,10 @@ handleAction = case _ of
     for_ (Array.head state.props) \link -> do
       H.modify_ $ _
         { editingLink = true
-        , editingLinkTitle = link.title
-        , editingLinkUrl = link.url
-        , editingLinkImage = fromMaybe "" link.image
-        , editingLinkTags =
+        , linkTitle = link.title
+        , linkUrl = link.url
+        , linkImage = fromMaybe "" link.image
+        , linkTags =
             String.joinWith " " $ Tag.toString <$> Array.fromFoldable link.tags
         }
 
@@ -304,16 +308,16 @@ handleAction = case _ of
       re = unsafeRegex "\\s" RF.noFlags
     for_ (Array.head state.props) \link -> do
       let
-        editingLinkTags = String.trim state.editingLinkTags
+        linkTags = String.trim state.linkTags
       H.raise $ MsgUpdate link
-        { title = state.editingLinkTitle
-        , url = state.editingLinkUrl
-        , image = Just state.editingLinkImage
+        { title = state.linkTitle
+        , url = state.linkUrl
+        , image = Just state.linkImage
         , tags =
-            if String.null editingLinkTags
+            if String.null linkTags
             then Set.empty
             else Set.fromFoldable $ map Tag $
-                 Regex.split re state.editingLinkTags
+                 Regex.split re state.linkTags
         }
     H.modify_ $ _ { editingLink = false }
 
@@ -326,16 +330,20 @@ handleAction = case _ of
       H.raise $ MsgDelete link
 
   OnChangeLinkTitle title -> do
-    H.modify_ $ _ { editingLinkTitle = title }
+    H.modify_ $ _ { linkTitle = title }
 
   OnChangeLinkUrl url -> do
-    H.modify_ $ _ { editingLinkUrl = url }
+    H.modify_ $ _ { linkUrl = url }
 
   OnChangeLinkImage image -> do
-    H.modify_ $ _ { editingLinkImage = image }
+    H.modify_ $ _ { linkImage = image }
 
   OnChangeLinkTags tags -> do
-    H.modify_ $ _ { editingLinkTags = tags }
+    H.modify_ $ _ { linkTags = tags }
+
+  OnKeyUpLinkTags event -> do
+    liftEffect $ DOM.getWordBeforeCursor event >>= traverse_ \word ->
+      traceM word
 
   OnTextNoteInput textNote -> do
     H.modify_ $ _ { textNote = textNote }
