@@ -451,9 +451,12 @@ handleAction = case _ of
       Select.Selected index -> do
         state <- H.get
         for_ (Array.index state.tagOptions index) \(Tag s) -> do
-          H.query _tagSelect unit (H.request Select.GetInputElement) >>= traverse_ \el ->
-            liftEffect (DOM.replaceWordBeforeCursor s $ unsafeCoerce el)
-          H.modify_ $ _ { tagOptions = [] }
+          H.query _tagSelect unit (H.request Select.GetInputElement) >>= traverse_ \el -> do
+            value <- liftEffect (DOM.replaceWordBeforeCursor s $ unsafeCoerce el)
+            H.modify_ $ _
+              { linkTags = value
+              , tagOptions = []
+              }
 
       Select.InputValueChanged value -> do
         H.modify_ $ _ { linkTags = value }

@@ -14,4 +14,4 @@ foreign import getWordBeforeCursor_ :: HTMLInputElement -> Effect (Nullable Stri
 getWordBeforeCursor :: HTMLInputElement -> Effect (Maybe String)
 getWordBeforeCursor el = Nullable.toMaybe <$> getWordBeforeCursor_ el
 
-foreign import replaceWordBeforeCursor :: String -> HTMLInputElement -> Effect Unit
+foreign import replaceWordBeforeCursor :: String -> HTMLInputElement -> Effect String

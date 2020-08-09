@@ -22,6 +22,8 @@ exports.replaceWordBeforeCursor = word => input => () => {
   input.value =
     value.slice(0, prevSpaceIndex + 1) + word + value.slice(selectionEnd);
 
+  return input.value;
+
   // TODO: Cursor will be moved to the end of input, should set cursor to the
   // end of word instead.
 };
